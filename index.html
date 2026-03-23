@@ -12,17 +12,16 @@
     
     .search-box { display: flex; padding: 15px; gap: 10px; max-width: 600px; margin: 0 auto; }
     .search-box input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; font-size: 16px; }
-    .search-box button { padding: 10px 25px; background: #e94560; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    .search-box button:hover { background: #ff2e63; }
+    .search-box button { padding: 10px 25px; background: #e94560; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
     .filter-btns { display: flex; gap: 10px; padding: 10px; flex-wrap: wrap; justify-content: center; }
-    .filter-btns button { padding: 8px 18px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; background: #1a1a2e; color: #ccc; transition: 0.3s; }
-    .filter-btns button.active { background: #e94560; color: #fff; box-shadow: 0 0 10px rgba(233, 69, 96, 0.5); }
+    .filter-btns button { padding: 8px 18px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; background: #1a1a2e; color: #ccc; }
+    .filter-btns button.active { background: #e94560; color: #fff; }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 20px; }
-    .card { background: #161625; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 1px solid #222; position: relative; }
+    .card { background: #161625; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 1px solid #222; }
     .card:hover { transform: translateY(-5px); border-color: #e94560; }
-    .card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+    .card img { width: 100%; height: 220px; object-fit: cover; }
     .card p { padding: 10px; font-size: 14px; text-align: center; font-weight: 500; height: 55px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
     .loading { text-align: center; padding: 50px; font-size: 18px; color: #e94560; font-weight: bold; width: 100%; grid-column: 1 / -1; }
@@ -30,7 +29,6 @@
     #chapters { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; overflow-y: auto; z-index: 998; padding: 20px; }
     #backBtn { background: #e94560; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
     .chapter-item { background: #1a1a2e; padding: 15px; margin: 10px 0; border-radius: 10px; cursor: pointer; border-left: 4px solid #e94560; }
-    .chapter-item:hover { background: #252545; }
 
     #reader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; overflow-y: auto; z-index: 999; }
     #reader img { width: 100%; max-width: 800px; display: block; margin: 0 auto; }
@@ -53,11 +51,11 @@
   </div>
 
   <div id="grid" class="grid">
-    <div class="loading">Ачааллаж байна...</div>
+    <div class="loading">Уншиж байна...</div>
   </div>
 
   <div id="chapters">
-    <button id="backBtn" onclick="closeChapters()">← Буцах</button>
+    <button onclick="closeChapters()" id="backBtn">← Буцах</button>
     <h2 id="mangaTitle" style="margin-bottom:20px;"></h2>
     <div id="chapterList"></div>
   </div>
@@ -69,21 +67,31 @@
 
   <script>
     const API_BASE = 'https://api.mangadex.org';
-    const PROXY = 'https://corsproxy.io/?'; // CORS алдаанаас сэргийлэх прокси
-
+    
+    // Прокси ашиглахгүйгээр шууд хандаж үзэх, болохгүй бол AllOrigins ашиглах функц
     async function fetchData(url) {
       try {
-        const response = await fetch(PROXY + encodeURIComponent(url));
-        return await response.json();
+        // Эхлээд шууд хандаж үзэх
+        const response = await fetch(url);
+        if (response.ok) return await response.json();
+        throw new Error('Direct fetch failed');
       } catch (err) {
-        console.error("Алдаа гарлаа:", err);
-        return null;
+        // Хэрэв шууд болохгүй бол CORS прокси ашиглах
+        try {
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+          const res = await fetch(proxyUrl);
+          const data = await res.json();
+          return JSON.parse(data.contents);
+        } catch (proxyErr) {
+          console.error("Мэдээлэл авахад алдаа гарлаа:", proxyErr);
+          return null;
+        }
       }
     }
 
     async function loadManga(lang = '', query = '') {
       const grid = document.getElementById('grid');
-      grid.innerHTML = '<div class="loading">Уншиж байна...</div>';
+      grid.innerHTML = '<div class="loading">Мэдээллийг ачаалж байна...</div>';
       
       let url = `${API_BASE}/manga?limit=24&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`;
       if (lang) url += `&originalLanguage[]=${lang}`;
@@ -91,8 +99,11 @@
       else url += `&order[followedCount]=desc`;
 
       const data = await fetchData(url);
-      if (data && data.data) displayManga(data.data);
-      else grid.innerHTML = '<div class="loading">Мэдээлэл олдсонгүй. Дахин оролдоно уу.</div>';
+      if (data && data.data) {
+        displayManga(data.data);
+      } else {
+        grid.innerHTML = '<div class="loading" style="color: #ff4d4d">Мэдээлэл олдсонгүй. Хуудсаа дахин шинэчилнэ үү (Refresh).</div>';
+      }
     }
 
     function displayManga(list) {
@@ -105,7 +116,7 @@
         
         return `
           <div class="card" onclick="openChapters('${m.id}', '${title.replace(/'/g, "\\'")}')">
-            <img src="${imgUrl}" alt="${title}" loading="lazy">
+            <img src="${imgUrl}" alt="${title}">
             <p>${title}</p>
           </div>`;
       }).join('');
@@ -115,25 +126,24 @@
       document.getElementById('mangaTitle').innerText = title;
       document.getElementById('chapters').style.display = 'block';
       const listDiv = document.getElementById('chapterList');
-      listDiv.innerHTML = '<div class="loading">Бүлгүүдийг ачаалж байна...</div>';
+      listDiv.innerHTML = '<div class="loading">Бүлгүүдийг уншиж байна...</div>';
 
       const data = await fetchData(`${API_BASE}/manga/${mangaId}/feed?translatedLanguage[]=en&order[chapter]=desc&limit=50`);
-      if (data && data.data && data.data.length > 0) {
+      if (data && data.data) {
         listDiv.innerHTML = data.data.map(c => `
           <div class="chapter-item" onclick="readChapter('${c.id}')">
             Бүлэг ${c.attributes.chapter || 'Тусгай'} ${c.attributes.title ? ': ' + c.attributes.title : ''}
           </div>
         `).join('');
       } else {
-        listDiv.innerHTML = '<div class="loading">Бүлэг олдсонгүй (Англи хэл дээр байхгүй байна).</div>';
+        listDiv.innerHTML = '<div class="loading">Бүлэг олдсонгүй (English)</div>';
       }
     }
 
     async function readChapter(chapterId) {
-      const reader = document.getElementById('reader');
+      document.getElementById('reader').style.display = 'block';
       const pagesDiv = document.getElementById('pages');
-      reader.style.display = 'block';
-      pagesDiv.innerHTML = '<div class="loading">Зургуудыг уншиж байна...</div>';
+      pagesDiv.innerHTML = '<div class="loading">Зургийг ачаалж байна...</div>';
 
       const data = await fetchData(`${API_BASE}/at-home/server/${chapterId}`);
       if (data) {
@@ -158,7 +168,7 @@
     function closeChapters() { document.getElementById('chapters').style.display = 'none'; }
     function closeReader() { document.getElementById('reader').style.display = 'none'; }
 
-    // Анхны ачаалалт
+    // Эхлэл
     loadManga();
   </script>
 </body>
