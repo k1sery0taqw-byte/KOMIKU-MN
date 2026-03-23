@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Миний Манга Сайт</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0f0f0f; color: #fff; font-family: Arial, sans-serif; }
+    header { background: #1a1a2e; padding: 15px; text-align: center; }
+    header h1 { color: #e94560; font-size: 24px; }
+    .search-box { display: flex; padding: 15px; gap: 10px; }
+    .search-box input { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #222; color: #fff; font-size: 16px; }
+    .search-box button { padding: 10px 20px; background: #e94560; color: #fff; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 15px; }
+    .card { background: #1a1a2e; border-radius: 10px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+    .card:hover { transform: scale(1.05); }
+    .card img { width: 100%; height: 200px; object-fit: cover; }
+    .card p { padding: 8px; font-size: 13px; text-align: center; }
+    .loading { text-align: center; padding: 40px; color: #888; }
+    #reader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; overflow-y: auto; z-index: 999; }
+    #reader img { width: 100%; display: block; }
+    #closeBtn { position: fixed; top: 10px; right: 10px; background: #e94560; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; z-index: 1000; font-size: 16px; }
+    #chapters { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; overflow-y: auto; z-index: 998; padding: 15px; }
+    #backBtn { background: #333; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 16px; }
+    .chapter-item { background: #1a1a2e; padding: 12px; margin: 8px 0; border-radius: 8px; cursor: pointer; }
+    .chapter-item:hover { background: #e94560; }
+    .filter-btns { display: flex; gap: 10px; padding: 0 15px 15px; flex-wrap: wrap; }
+    .filter-btns button { padding: 8px 15px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; background: #333; color: #fff; }
+    .filter-btns button.active { background: #e94560; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📚 Миний Манга</h1>
+  </header>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Манга хайх..." />
+    <button onclick="searchManga()">Хайх</button>
+  </div>
+
+  <div class="filter-btns">
+    <button class="active" onclick="filterType('', this)">Бүгд</button>
+    <button onclick="filterType('manga', this)">Манга 🇯🇵</button>
+    <button onclick="filterType('manhwa', this)">Манхва 🇰🇷</button>
+    <button onclick="filterType('manhua', this)">Манхуа 🇨🇳</button>
+  </div>
+
+  <div id="grid" class="grid">
+    <div class="loading">Ачааллаж байна...</div>
+  </div>
+
+  <!-- Chapters -->
+  <div id="chapters">
+    <button id="backBtn" onclick="closeChapters()">← Буцах</button>
+    <h2 id="mangaTitle" style="margin-bottom:15px; color:#e94560;"></h2>
+    <div id="chapterList"></div>
+  </div>
+
+  <!-- Reader -->
+  <div id="reader">
+    <button id="closeBtn" onclick="closeReader()">✕ Хаах</button>
+    <div id="pages"></div>
+  </div>
+
+  <script>
+    const API = 'https://api.mangadex.org';
+    let currentType = '';
+    let currentMangaId = '';
+
+    async function loadPopular(type = '') {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '<div class="loading">Ачааллаж байна...</div>';
+      let url = `${API}/manga?limit=30&order[rating]=desc&availableTranslatedLanguage[]=en&contentRating[]=safe&contentRating[]=suggestive&includes[]=cover_art`;
+      if (type) url += `&publicationDemographic[]=${type === 'manhwa' ? 'josei,seinen' : ''}&originalLanguage[]=${type === 'manga' ? 'ja' : type === 'manhwa' ? 'ko' : type === 'manhua' ? 'zh' : ''}`;
+      if (type === 'manga') url = `${API}/manga?limit=30&order[rating]=desc&originalLanguage[]=ja&availableTranslatedLanguage[]=en&contentRating[]=safe&contentRating[]=suggestive&includes[]=cover_art`;
+      if (type === 'manhwa') url = `${API}/manga?limit=30&order[rating]=desc&originalLanguage[]=ko&availableTranslatedLanguage[]=en&contentRating[]=safe&contentRating[]=suggestive&includes[]=cover_art`;
+      if (type === 'manhua') url = `${API}/manga?limit=30&order[rating]=desc&originalLanguage[]=zh&availableTranslatedLanguage[]=en&contentRating[]=safe&contentRating[]=suggestive&includes[]=cover_art`;
+      const res = await fetch(url);
+      const data = await res.json();
+      displayManga(data.data);
+    }
+
+    async function searchManga() {
+      const query = document.getElementById('searchInput').value;
+      if (!query) return;
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '<div class="loading">Хайж байна...</div>';
+      const res = await fetch(`${API}/manga?title=${encodeURIComponent(query)}&limit=30&availableTranslatedLanguage[]=en&contentRating[]=safe&contentRating[]=suggestive&includes[]=cover_art`);
+      const data = await res.json();
+      displayManga(data.data);
+    }
+
+    function displayManga(list) {
+      const grid = document.getElementById('grid');
+      if (!list || list.length === 0) { grid.innerHTML = '<div class="loading">Олдсонгүй</div>'; return; }
+      grid.innerHTML = list.map(m => {
+        const cover = m.relationships.find(r => r.type === 'cover_art');
+        const imgUrl = cover ? `https://uploads.mangadex.org/covers/${m.id}/${cover.attributes.fileName}.256.jpg` : '';
+        const title = m.attributes.title.en || Object.values(m.attributes.title)[0] || 'Нэргүй';
+        return `<div class="card" onclick="openChapters('${m.id}', '${title.replace(/'/g, "\\'")}')">
+          <img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/140x200?text=No+Image'" />
+          <p>${title}</p>
+        </div>`;
+      }).join('');
+    }
+
+    async function openChapters(mangaId, title) {
+      currentMangaId = mangaId;
+      document.getElementById('mangaTitle').textContent = title;
+      document.getElementById('chapters').style.display = 'block';
+      document.getElementById('chapterList').innerHTML = '<div class="loading">Бүлгүүдийг ачааллаж байна...</div>';
+      const res = await fetch(`${API}/manga/${mangaId}/feed?translatedLanguage[]=en&order[chapter]=asc&limit=100`);
+      const data = await res.json();
+      const chapters = data.data;
+      if (!chapters || chapters.length === 0) {
+        document.getElementById('chapterList').innerHTML = '<div class="loading">Бүлэг олдсонгүй</div>';
+        return;
+      }
+      document.getElementById('chapterList').innerHTML = chapters.map(c =>
+        `<div class="chapter-item" onclick="readChapter('${c.id}')">
+          Бүлэг ${c.attributes.chapter || '?'} ${c.attributes.title ? '- ' + c.attributes.title : ''}
+        </div>`
+      ).join('');
+    }
+
+    function closeChapters() {
+      document.getElementById('chapters').style.display = 'none';
+    }
+
+    async function readChapter(chapterId) {
+      document.getElementById('reader').style.display = 'block';
+      document.getElementById('pages').innerHTML = '<div class="loading" style="color:#fff;padding:40px;">Ачааллаж байна...</div>';
+      const res = await fetch(`${API}/at-home/server/${chapterId}`);
+      const data = await res.json();
+      const base = data.baseUrl;
+      const hash = data.chapter.hash;
+      const pages = data.chapter.data;
+      document.getElementById('pages').innerHTML = pages.map(p =>
+        `<img src="${base}/data/${hash}/${p}" loading="lazy" />`
+      ).join('');
+    }
+
+    function closeReader() {
+      document.getElementById('reader').style.display = 'none';
+    }
+
+    function filterType(type, btn) {
+      currentType = type;
+      document.querySelectorAll('.filter-btns button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadPopular(type);
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') searchManga(); });
+    loadPopular();
+  </script>
+</body>
+</html>
