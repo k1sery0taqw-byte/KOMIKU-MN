@@ -1,175 +1,499 @@
 <!DOCTYPE html>
-<html lang="mn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KOMIKU - Манга Сайт</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0f0f0f; color: #fff; font-family: 'Segoe UI', Arial, sans-serif; }
-    header { background: #1a1a2e; padding: 20px; text-align: center; border-bottom: 2px solid #e94560; }
-    header h1 { color: #e94560; font-size: 28px; text-transform: uppercase; letter-spacing: 2px; }
-    
-    .search-box { display: flex; padding: 15px; gap: 10px; max-width: 600px; margin: 0 auto; }
-    .search-box input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; font-size: 16px; }
-    .search-box button { padding: 10px 25px; background: #e94560; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MangaZone — Read Manga, Manhwa & Manhua Free</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d0d12;
+  --bg2:     #12121a;
+  --card:    #16161e;
+  --cardH:   #1e1e2a;
+  --border:  #2a2a3a;
+  --accent:  #7c5cbf;
+  --accent2: #9b6dff;
+  --blue:    #4facfe;
+  --text:    #e8e8f0;
+  --muted:   #7777aa;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-    .filter-btns { display: flex; gap: 10px; padding: 10px; flex-wrap: wrap; justify-content: center; }
-    .filter-btns button { padding: 8px 18px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; background: #1a1a2e; color: #ccc; }
-    .filter-btns button.active { background: #e94560; color: #fff; }
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(13,13,18,.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  height:62px;padding:0 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem
+}
+.logo{font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;white-space:nowrap}
+nav ul{display:flex;gap:1.5rem;list-style:none}
+nav ul a{color:var(--muted);font-size:.875rem;font-weight:500;cursor:pointer;transition:color .2s}
+nav ul a:hover,nav ul a.active{color:var(--text)}
+.search-wrap{display:flex;align-items:center;gap:.5rem;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;padding:.4rem .75rem;flex:1;max-width:300px}
+.search-wrap input{background:none;border:none;outline:none;color:var(--text);font-size:.85rem;
+  width:100%;font-family:inherit}
+.search-wrap input::placeholder{color:var(--muted)}
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 20px; }
-    .card { background: #161625; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 1px solid #222; }
-    .card:hover { transform: translateY(-5px); border-color: #e94560; }
-    .card img { width: 100%; height: 220px; object-fit: cover; }
-    .card p { padding: 10px; font-size: 14px; text-align: center; font-weight: 500; height: 55px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+/* ── PAGES ── */
+.page{display:none}.page.active{display:block}
 
-    .loading { text-align: center; padding: 50px; font-size: 18px; color: #e94560; font-weight: bold; width: 100%; grid-column: 1 / -1; }
-    
-    #chapters { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; overflow-y: auto; z-index: 998; padding: 20px; }
-    #backBtn { background: #e94560; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
-    .chapter-item { background: #1a1a2e; padding: 15px; margin: 10px 0; border-radius: 10px; cursor: pointer; border-left: 4px solid #e94560; }
+/* ── HERO ── */
+.hero{background:linear-gradient(180deg,rgba(124,92,191,.12) 0%,transparent 100%);
+  padding:3rem 1.5rem 2rem;text-align:center}
+.hero h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;line-height:1.2;margin-bottom:.6rem}
+.hero h1 span{background:linear-gradient(135deg,var(--accent2),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:.95rem}
 
-    #reader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; overflow-y: auto; z-index: 999; }
-    #reader img { width: 100%; max-width: 800px; display: block; margin: 0 auto; }
-    #closeBtn { position: fixed; top: 15px; right: 15px; background: rgba(233, 69, 96, 0.8); color: #fff; border: none; padding: 12px 18px; border-radius: 50%; cursor: pointer; z-index: 1000; font-weight: bold; }
-  </style>
+/* ── SECTION ── */
+.section{padding:2rem 1.5rem;max-width:1400px;margin:0 auto}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.sec-title{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+.sec-title::before{content:'';display:inline-block;width:4px;height:1.1em;
+  background:linear-gradient(var(--accent2),var(--blue));border-radius:2px}
+.see-all{color:var(--accent2);font-size:.8rem;cursor:pointer}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem}
+@media(min-width:600px){.grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr))}}
+@media(min-width:1100px){.grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}}
+
+/* ── CARD ── */
+.card{cursor:pointer;border-radius:10px;overflow:hidden;background:var(--card);
+  transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(124,92,191,.25)}
+.cover{position:relative;aspect-ratio:2/3;overflow:hidden}
+.cover img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.card:hover .cover img{transform:scale(1.05)}
+.badge{position:absolute;top:6px;left:6px;font-size:.6rem;font-weight:700;
+  padding:2px 6px;border-radius:4px;text-transform:uppercase;color:#fff}
+.badge.manhwa{background:#e05c94}.badge.manhua{background:#e0843d}.badge.manga{background:#4a80e0}
+.cinfo{padding:.6rem .7rem .7rem}
+.ctitle{font-size:.78rem;font-weight:600;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.3rem}
+.cmeta{font-size:.68rem;color:var(--muted);display:flex;gap:.4rem;align-items:center}
+.star{color:#fbbf24}
+
+/* ── SKELETON ── */
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-cover{aspect-ratio:2/3;
+  background:linear-gradient(90deg,var(--card) 25%,var(--cardH) 50%,var(--card) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite}
+.skel-line{height:.65rem;border-radius:3px;margin-bottom:.4rem;
+  background:linear-gradient(90deg,var(--card) 25%,var(--cardH) 50%,var(--card) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite}
+.skel-wrap{border-radius:10px;overflow:hidden;background:var(--card)}
+.skel-pad{padding:.6rem .7rem .7rem}
+
+/* ── FILTERS ── */
+.type-bar,.genre-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem}
+.fbtn{padding:.4rem 1rem;border-radius:20px;border:1px solid var(--border);
+  background:var(--card);color:var(--muted);font-size:.8rem;font-weight:500;cursor:pointer;
+  transition:all .2s;font-family:inherit}
+.fbtn:hover,.fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ── DETAIL ── */
+.back-btn{display:inline-flex;align-items:center;gap:.4rem;color:var(--muted);cursor:pointer;
+  font-size:.85rem;margin-bottom:1.5rem;transition:color .2s}
+.back-btn:hover{color:var(--text)}
+.detail-wrap{display:flex;gap:1.5rem;margin-bottom:2rem}
+.det-cover{width:170px;min-width:170px;border-radius:12px;overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.det-cover img{width:100%;height:auto;display:block}
+.det-info{flex:1}
+.det-title{font-size:clamp(1.1rem,3vw,1.7rem);font-weight:800;margin-bottom:.5rem;line-height:1.2}
+.tags{display:flex;flex-wrap:wrap;gap:.35rem;margin:.6rem 0}
+.tag{padding:.2rem .55rem;background:rgba(124,92,191,.18);border:1px solid rgba(124,92,191,.3);
+  border-radius:4px;font-size:.68rem;color:var(--accent2)}
+.det-desc{color:var(--muted);font-size:.85rem;line-height:1.65;
+  display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;margin:.6rem 0}
+.stats{display:flex;gap:1.5rem;margin-top:.75rem}
+.stat-v{font-size:1rem;font-weight:700;text-transform:capitalize}
+.stat-l{font-size:.68rem;color:var(--muted)}
+.read-btn{display:inline-flex;align-items:center;gap:.5rem;margin-top:1rem;
+  padding:.65rem 1.4rem;background:linear-gradient(135deg,var(--accent),var(--blue));
+  color:#fff;border:none;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;
+  transition:opacity .2s,transform .2s;font-family:inherit}
+.read-btn:hover{opacity:.88;transform:translateY(-1px)}
+
+/* ── CHAPTER LIST ── */
+.ch-list{display:flex;flex-direction:column;gap:.35rem}
+.ch-item{display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem 1rem;background:var(--card);border-radius:8px;cursor:pointer;transition:background .2s}
+.ch-item:hover{background:var(--cardH)}
+.ch-num{font-weight:600;font-size:.85rem}
+.ch-date{font-size:.72rem;color:var(--muted)}
+
+/* ── READER ── */
+#page-reader{background:#000}
+.reader-header{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.95);
+  border-bottom:1px solid #222;padding:.65rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.reader-title{font-size:.82rem;font-weight:600;max-width:50%;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.rctrls{display:flex;gap:.4rem}
+.rbtn{padding:.3rem .8rem;background:#1a1a1a;border:1px solid #333;border-radius:6px;
+  color:var(--text);font-size:.78rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.rbtn:hover{background:var(--accent);border-color:var(--accent)}
+.reader-imgs{max-width:800px;margin:0 auto}
+.reader-imgs img{width:100%;display:block}
+
+/* ── MISC ── */
+.spinner{display:inline-block;width:36px;height:36px;border:3px solid var(--border);
+  border-top-color:var(--accent2);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.center{text-align:center;padding:3rem}
+.empty{text-align:center;padding:3rem;color:var(--muted)}
+.load-more{display:block;margin:2rem auto;padding:.7rem 2rem;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;
+  font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s}
+.load-more:hover{background:var(--accent);border-color:var(--accent)}
+footer{background:var(--bg2);border-top:1px solid var(--border);
+  padding:1.5rem;text-align:center;color:var(--muted);font-size:.75rem;margin-top:3rem}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+@media(max-width:580px){nav ul{display:none}.detail-wrap{flex-direction:column}.det-cover{width:130px}}
+</style>
 </head>
 <body>
-  <header><h1>📚 KOMIKU</h1></header>
 
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Манга хайх..." />
-    <button onclick="searchManga()">Хайх</button>
+<header>
+  <div class="logo" onclick="nav('home')">⚡ MangaZone</div>
+  <nav><ul>
+    <li><a id="n-home" class="active" onclick="nav('home')">Home</a></li>
+    <li><a id="n-browse" onclick="nav('browse')">Browse</a></li>
+    <li><a id="n-manhwa" onclick="nav('manhwa')">Manhwa</a></li>
+    <li><a id="n-manhua" onclick="nav('manhua')">Manhua</a></li>
+  </ul></nav>
+  <div class="search-wrap">
+    <span style="color:var(--muted);font-size:.9rem">🔍</span>
+    <input id="q" type="text" placeholder="Search title…" onkeydown="onSearch(event)">
   </div>
+</header>
 
-  <div class="filter-btns">
-    <button id="btn-all" class="active" onclick="filterType('', this)">Бүгд</button>
-    <button onclick="filterType('ja', this)">Манга 🇯🇵</button>
-    <button onclick="filterType('ko', this)">Манхва 🇰🇷</button>
-    <button onclick="filterType('zh', this)">Манхуа 🇨🇳</button>
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <h1>Read <span>Manga · Manhwa</span> &amp; Manhua<br>Online Free</h1>
+    <p>Thousands of titles — updated daily</p>
   </div>
-
-  <div id="grid" class="grid">
-    <div class="loading">Уншиж байна...</div>
+  <div class="section">
+    <div class="sec-head">
+      <h2 class="sec-title">🔥 Popular Now</h2>
+      <span class="see-all" onclick="nav('browse')">See all →</span>
+    </div>
+    <div class="grid" id="g-popular"></div>
   </div>
-
-  <div id="chapters">
-    <button onclick="closeChapters()" id="backBtn">← Буцах</button>
-    <h2 id="mangaTitle" style="margin-bottom:20px;"></h2>
-    <div id="chapterList"></div>
+  <div class="section">
+    <div class="sec-head"><h2 class="sec-title">🕒 Latest Updated</h2></div>
+    <div class="grid" id="g-latest"></div>
   </div>
+</div>
 
-  <div id="reader">
-    <button id="closeBtn" onclick="closeReader()">✕</button>
-    <div id="pages"></div>
+<!-- BROWSE -->
+<div id="page-browse" class="page">
+  <div class="section">
+    <h1 style="font-size:1.4rem;font-weight:800;margin-bottom:1.25rem">Browse</h1>
+    <div class="type-bar" id="type-bar">
+      <button class="fbtn active" onclick="setType('all',this)">All</button>
+      <button class="fbtn" onclick="setType('manga',this)">Manga 🇯🇵</button>
+      <button class="fbtn" onclick="setType('manhwa',this)">Manhwa 🇰🇷</button>
+      <button class="fbtn" onclick="setType('manhua',this)">Manhua 🇨🇳</button>
+    </div>
+    <div class="genre-bar" id="genre-bar"></div>
+    <div class="grid" id="g-browse"></div>
+    <button class="load-more" onclick="loadMore()">Load More</button>
   </div>
+</div>
 
-  <script>
-    const API_BASE = 'https://api.mangadex.org';
-    
-    // Прокси ашиглахгүйгээр шууд хандаж үзэх, болохгүй бол AllOrigins ашиглах функц
-    async function fetchData(url) {
-      try {
-        // Эхлээд шууд хандаж үзэх
-        const response = await fetch(url);
-        if (response.ok) return await response.json();
-        throw new Error('Direct fetch failed');
-      } catch (err) {
-        // Хэрэв шууд болохгүй бол CORS прокси ашиглах
-        try {
-          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-          const res = await fetch(proxyUrl);
-          const data = await res.json();
-          return JSON.parse(data.contents);
-        } catch (proxyErr) {
-          console.error("Мэдээлэл авахад алдаа гарлаа:", proxyErr);
-          return null;
-        }
-      }
-    }
+<!-- DETAIL -->
+<div id="page-detail" class="page">
+  <div class="section" id="detail-body"></div>
+</div>
 
-    async function loadManga(lang = '', query = '') {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '<div class="loading">Мэдээллийг ачаалж байна...</div>';
-      
-      let url = `${API_BASE}/manga?limit=24&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`;
-      if (lang) url += `&originalLanguage[]=${lang}`;
-      if (query) url += `&title=${encodeURIComponent(query)}`;
-      else url += `&order[followedCount]=desc`;
+<!-- READER -->
+<div id="page-reader" class="page">
+  <div class="reader-header">
+    <span class="reader-title" id="r-title">Loading…</span>
+    <div class="rctrls">
+      <button class="rbtn" onclick="chNav(-1)">← Prev</button>
+      <button class="rbtn" onclick="nav('detail',cManga)">Chapters</button>
+      <button class="rbtn" onclick="chNav(1)">Next →</button>
+    </div>
+  </div>
+  <div class="reader-imgs" id="r-imgs"><div class="center"><div class="spinner"></div></div></div>
+</div>
 
-      const data = await fetchData(url);
-      if (data && data.data) {
-        displayManga(data.data);
-      } else {
-        grid.innerHTML = '<div class="loading" style="color: #ff4d4d">Мэдээлэл олдсонгүй. Хуудсаа дахин шинэчилнэ үү (Refresh).</div>';
-      }
-    }
+<!-- SEARCH -->
+<div id="page-search" class="page">
+  <div class="section">
+    <h1 style="font-size:1.4rem;font-weight:800;margin-bottom:1.25rem" id="s-title">Search Results</h1>
+    <div class="grid" id="g-search"></div>
+  </div>
+</div>
 
-    function displayManga(list) {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = list.map(m => {
-        const cover = m.relationships.find(r => r.type === 'cover_art');
-        const fileName = cover ? cover.attributes.fileName : '';
-        const imgUrl = fileName ? `https://uploads.mangadex.org/covers/${m.id}/${fileName}.256.jpg` : 'https://via.placeholder.com/150x220?text=No+Cover';
-        const title = m.attributes.title.en || Object.values(m.attributes.title)[0] || 'Нэргүй';
-        
-        return `
-          <div class="card" onclick="openChapters('${m.id}', '${title.replace(/'/g, "\\'")}')">
-            <img src="${imgUrl}" alt="${title}">
-            <p>${title}</p>
-          </div>`;
-      }).join('');
-    }
+<footer>⚡ MangaZone — Powered by <a href="https://mangadex.org" style="color:var(--accent2);text-decoration:none">MangaDex</a> API &nbsp;|&nbsp; For educational use only.</footer>
 
-    async function openChapters(mangaId, title) {
-      document.getElementById('mangaTitle').innerText = title;
-      document.getElementById('chapters').style.display = 'block';
-      const listDiv = document.getElementById('chapterList');
-      listDiv.innerHTML = '<div class="loading">Бүлгүүдийг уншиж байна...</div>';
+<script>
+const API = 'https://api.mangadex.org';
+let cManga = null, cChapter = null, chapters = [], browseOff = 0, browseType = 'all', browseTag = '';
 
-      const data = await fetchData(`${API_BASE}/manga/${mangaId}/feed?translatedLanguage[]=en&order[chapter]=desc&limit=50`);
-      if (data && data.data) {
-        listDiv.innerHTML = data.data.map(c => `
-          <div class="chapter-item" onclick="readChapter('${c.id}')">
-            Бүлэг ${c.attributes.chapter || 'Тусгай'} ${c.attributes.title ? ': ' + c.attributes.title : ''}
+/* ── HELPERS ── */
+const $  = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function cover(m) {
+  const r = m.relationships?.find(r => r.type === 'cover_art');
+  if (!r?.attributes?.fileName) return '';
+  return `https://uploads.mangadex.org/covers/${m.id}/${r.attributes.fileName}.256.jpg`;
+}
+
+function typeOf(m) {
+  const l = m.attributes?.originalLanguage;
+  if (l === 'ko') return {label:'Manhwa', cls:'manhwa'};
+  if (l === 'zh' || l === 'zh-hk') return {label:'Manhua', cls:'manhua'};
+  return {label:'Manga', cls:'manga'};
+}
+
+function titleOf(m) {
+  return m.attributes?.title?.en || Object.values(m.attributes?.title || {})[0] || 'Unknown Title';
+}
+
+function skels(n) {
+  return Array(n).fill(`
+    <div class="skel-wrap">
+      <div class="skel-cover"></div>
+      <div class="skel-pad">
+        <div class="skel-line" style="width:80%"></div>
+        <div class="skel-line" style="width:50%"></div>
+      </div>
+    </div>`).join('');
+}
+
+function cardHtml(m) {
+  const t = typeOf(m);
+  const title = titleOf(m);
+  const img = cover(m);
+  const rating = m.attributes?.rating?.average ? (m.attributes.rating.average/2).toFixed(1) : '';
+  const placeholder = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='300'><rect width='200' height='300' fill='%2316161e'/><text x='50%25' y='50%25' fill='%237777aa' text-anchor='middle' dominant-baseline='middle' font-size='13' font-family='sans-serif'>No Cover</text></svg>`;
+  return `
+    <div class="card" onclick="nav('detail','${m.id}')">
+      <div class="cover">
+        <img src="${img||placeholder}" alt="${esc(title)}" loading="lazy" onerror="this.src='${placeholder}'">
+        <span class="badge ${t.cls}">${t.label}</span>
+      </div>
+      <div class="cinfo">
+        <div class="ctitle">${esc(title)}</div>
+        <div class="cmeta">
+          ${rating?`<span class="star">★ ${rating}</span>`:''}
+          <span style="text-transform:capitalize">${m.attributes?.status||''}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── NAVIGATE ── */
+function nav(page, id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav ul a').forEach(a => a.classList.remove('active'));
+  const nEl = $(`n-${page}`);
+  if (nEl) nEl.classList.add('active');
+  window.scrollTo(0, 0);
+
+  if (page === 'home') {
+    $('page-home').classList.add('active');
+    if (!$('g-popular').children.length) loadHome();
+
+  } else if (['browse','manga','manhwa','manhua'].includes(page)) {
+    $('page-browse').classList.add('active');
+    browseOff = 0;
+    browseType = page === 'browse' ? 'all' : page;
+    document.querySelectorAll('.type-bar .fbtn').forEach(b => b.classList.remove('active'));
+    const match = [...document.querySelectorAll('.type-bar .fbtn')].find(b => b.textContent.toLowerCase().startsWith(browseType));
+    if (match) match.classList.add('active');
+    $('g-browse').innerHTML = skels(18);
+    loadBrowse(true);
+
+  } else if (page === 'detail' && id) {
+    cManga = id;
+    $('page-detail').classList.add('active');
+    loadDetail(id);
+
+  } else if (page === 'reader' && id) {
+    $('page-reader').classList.add('active');
+    loadReader(id);
+
+  } else if (page === 'search') {
+    $('page-search').classList.add('active');
+  }
+}
+
+/* ── HOME ── */
+async function loadHome() {
+  $('g-popular').innerHTML = skels(12);
+  $('g-latest').innerHTML  = skels(12);
+  try {
+    const [pop, lat] = await Promise.all([
+      fetch(`${API}/manga?limit=12&includes[]=cover_art&order[followedCount]=desc&contentRating[]=safe&availableTranslatedLanguage[]=en`).then(r=>r.json()),
+      fetch(`${API}/manga?limit=12&includes[]=cover_art&order[updatedAt]=desc&contentRating[]=safe&availableTranslatedLanguage[]=en`).then(r=>r.json())
+    ]);
+    $('g-popular').innerHTML = (pop.data||[]).map(cardHtml).join('');
+    $('g-latest').innerHTML  = (lat.data||[]).map(cardHtml).join('');
+  } catch { $('g-popular').innerHTML = '<div class="empty">Failed to load. Check your connection.</div>'; }
+}
+
+/* ── BROWSE ── */
+async function loadBrowse(reset) {
+  if (reset) { browseOff = 0; $('g-browse').innerHTML = skels(18); }
+  let url = `${API}/manga?limit=18&offset=${browseOff}&includes[]=cover_art&order[followedCount]=desc&contentRating[]=safe&availableTranslatedLanguage[]=en`;
+  if (browseType === 'manhwa') url += '&originalLanguage[]=ko';
+  else if (browseType === 'manhua') url += '&originalLanguage[]=zh&originalLanguage[]=zh-hk';
+  else if (browseType === 'manga') url += '&originalLanguage[]=ja';
+  if (browseTag) url += `&includedTags[]=${browseTag}`;
+  try {
+    const data = await fetch(url).then(r=>r.json());
+    const html = (data.data||[]).map(cardHtml).join('');
+    if (reset) $('g-browse').innerHTML = html || '<div class="empty">No results.</div>';
+    else $('g-browse').innerHTML += html;
+    browseOff += 18;
+  } catch { if (reset) $('g-browse').innerHTML = '<div class="empty">Failed to load.</div>'; }
+}
+
+function setType(type, btn) {
+  document.querySelectorAll('.type-bar .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  browseType = type;
+  loadBrowse(true);
+}
+
+function setGenre(tagId, btn) {
+  document.querySelectorAll('.genre-bar .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  browseTag = tagId;
+  loadBrowse(true);
+}
+
+function loadMore() { loadBrowse(false); }
+
+/* ── GENRES ── */
+fetch(`${API}/manga/tag`).then(r=>r.json()).then(d=>{
+  const genres = (d.data||[]).filter(t=>t.attributes?.group==='genre').slice(0,16);
+  $('genre-bar').innerHTML = `<button class="fbtn active" onclick="setGenre('',this)">All</button>` +
+    genres.map(g=>`<button class="fbtn" onclick="setGenre('${g.id}',this)">${g.attributes?.name?.en||''}</button>`).join('');
+}).catch(()=>{});
+
+/* ── DETAIL ── */
+async function loadDetail(id) {
+  $('detail-body').innerHTML = '<div class="center"><div class="spinner"></div></div>';
+  try {
+    const [mRes, cRes] = await Promise.all([
+      fetch(`${API}/manga/${id}?includes[]=cover_art&includes[]=author`).then(r=>r.json()),
+      fetch(`${API}/manga/${id}/feed?limit=100&translatedLanguage[]=en&order[chapter]=desc`).then(r=>r.json())
+    ]);
+    const m = mRes.data;
+    chapters = cRes.data || [];
+    const t = typeOf(m);
+    const title = titleOf(m);
+    const desc  = m.attributes?.description?.en || 'No description available.';
+    const tags  = (m.attributes?.tags||[]).slice(0,10).map(g=>`<span class="tag">${esc(g.attributes?.name?.en||'')}</span>`).join('');
+    const author = m.relationships?.find(r=>r.type==='author')?.attributes?.name || '';
+    const img = cover(m) || '';
+    const placeholder = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='300'><rect width='200' height='300' fill='%2316161e'/></svg>`;
+
+    const chItems = chapters.slice(0,80).map(ch=>{
+      const num   = ch.attributes?.chapter || '?';
+      const cTitle = ch.attributes?.title ? ` — ${ch.attributes.title}` : '';
+      const date  = ch.attributes?.publishAt ? new Date(ch.attributes.publishAt).toLocaleDateString() : '';
+      return `<div class="ch-item" onclick="openReader('${ch.id}','${esc(title)} Ch.${num}')">
+        <span class="ch-num">Chapter ${num}${esc(cTitle)}</span>
+        <span class="ch-date">${date}</span>
+      </div>`;
+    }).join('') || '<div class="empty">No English chapters found.</div>';
+
+    const firstCh = chapters[chapters.length-1];
+    $('detail-body').innerHTML = `
+      <div class="back-btn" onclick="nav('browse')">← Back to Browse</div>
+      <div class="detail-wrap">
+        <div class="det-cover">
+          <img src="${img||placeholder}" alt="${esc(title)}" onerror="this.src='${placeholder}'">
+        </div>
+        <div class="det-info">
+          <span class="badge ${t.cls}" style="position:static;display:inline-block;margin-bottom:.5rem">${t.label}</span>
+          <h1 class="det-title">${esc(title)}</h1>
+          ${author?`<div style="color:var(--muted);font-size:.85rem;margin:.2rem 0">by ${esc(author)}</div>`:''}
+          <div class="tags">${tags}</div>
+          <p class="det-desc">${esc(desc)}</p>
+          <div class="stats">
+            <div><div class="stat-v">${m.attributes?.status||'—'}</div><div class="stat-l">Status</div></div>
+            ${m.attributes?.year?`<div><div class="stat-v">${m.attributes.year}</div><div class="stat-l">Year</div></div>`:''}
+            <div><div class="stat-v">${chapters.length}</div><div class="stat-l">Chapters</div></div>
           </div>
-        `).join('');
-      } else {
-        listDiv.innerHTML = '<div class="loading">Бүлэг олдсонгүй (English)</div>';
-      }
-    }
+          ${firstCh?`<button class="read-btn" onclick="openReader('${firstCh.id}','${esc(title)} Ch.1')">▶ Start Reading</button>`:''}
+        </div>
+      </div>
+      <h2 class="sec-title" style="margin-bottom:1rem">Chapter List</h2>
+      <div class="ch-list">${chItems}</div>`;
+  } catch(e) {
+    $('detail-body').innerHTML = '<div class="empty">Failed to load manga details.</div>';
+  }
+}
 
-    async function readChapter(chapterId) {
-      document.getElementById('reader').style.display = 'block';
-      const pagesDiv = document.getElementById('pages');
-      pagesDiv.innerHTML = '<div class="loading">Зургийг ачаалж байна...</div>';
+/* ── READER ── */
+function openReader(chId, label) {
+  cChapter = chId;
+  $('r-title').textContent = label;
+  nav('reader', chId);
+  loadReader(chId);
+}
 
-      const data = await fetchData(`${API_BASE}/at-home/server/${chapterId}`);
-      if (data) {
-        const host = data.baseUrl;
-        const hash = data.chapter.hash;
-        const files = data.chapter.data;
-        pagesDiv.innerHTML = files.map(f => `<img src="${host}/data/${hash}/${f}" loading="lazy">`).join('');
-      }
-    }
+async function loadReader(chId) {
+  cChapter = chId;
+  $('r-imgs').innerHTML = '<div class="center"><div class="spinner"></div></div>';
+  try {
+    const data = await fetch(`${API}/at-home/server/${chId}`).then(r=>r.json());
+    const base  = data.baseUrl;
+    const hash  = data.chapter?.hash;
+    const pages = data.chapter?.data || [];
+    if (!pages.length) { $('r-imgs').innerHTML = '<div class="empty" style="color:#fff">No pages found.</div>'; return; }
+    $('r-imgs').innerHTML = pages.map((p,i)=>
+      `<img src="${base}/data/${hash}/${p}" alt="Page ${i+1}" loading="${i<3?'eager':'lazy'}">`
+    ).join('');
+  } catch { $('r-imgs').innerHTML = '<div class="empty" style="color:#fff">Failed to load pages.</div>'; }
+}
 
-    function filterType(lang, btn) {
-      document.querySelectorAll('.filter-btns button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadManga(lang);
-    }
+function chNav(dir) {
+  const idx = chapters.findIndex(c=>c.id===cChapter);
+  const next = idx - dir; // desc order: prev = idx+1, next = idx-1
+  if (next >= 0 && next < chapters.length) {
+    const ch = chapters[next];
+    const num = ch.attributes?.chapter || '?';
+    openReader(ch.id, `Chapter ${num}`);
+  }
+}
 
-    function searchManga() {
-      const q = document.getElementById('searchInput').value;
-      if (q) loadManga('', q);
-    }
+/* ── SEARCH ── */
+function onSearch(e) {
+  if (e.key !== 'Enter') return;
+  const q = $('q').value.trim();
+  if (!q) return;
+  nav('search');
+  $('s-title').textContent = `Results for "${q}"`;
+  $('g-search').innerHTML = skels(12);
+  fetch(`${API}/manga?title=${encodeURIComponent(q)}&limit=20&includes[]=cover_art&contentRating[]=safe`)
+    .then(r=>r.json())
+    .then(d=>{ $('g-search').innerHTML = (d.data||[]).map(cardHtml).join('') || '<div class="empty">No results found.</div>'; })
+    .catch(()=>{ $('g-search').innerHTML = '<div class="empty">Search failed.</div>'; });
+}
 
-    function closeChapters() { document.getElementById('chapters').style.display = 'none'; }
-    function closeReader() { document.getElementById('reader').style.display = 'none'; }
-
-    // Эхлэл
-    loadManga();
-  </script>
+// Init
+loadHome();
+</script>
 </body>
 </html>
