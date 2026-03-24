@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KOMIKU — Read Manga, Manhwa & Manhua Free</title>
+<title>KOMIKU — Монгол Манга, Манхва</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -211,8 +211,10 @@ header{
   padding:.58rem .85rem;background:var(--card);border-radius:7px;cursor:pointer;
   transition:background .2s;border:1px solid transparent}
 .chi:hover{background:var(--cardH);border-color:var(--border)}
+.chi.read{opacity:0.6;}
 .chn{font-weight:600;font-size:.78rem}
 .chd{font-size:.65rem;color:var(--muted)}
+.read-badge{font-size:10px;background:#22c55e;color:#fff;padding:2px 6px;border-radius:10px;margin-left:8px;vertical-align:middle;}
 
 /* ── READER ── */
 #pg-reader{background:#000;min-height:100vh}
@@ -264,147 +266,134 @@ footer a{color:var(--a2);text-decoration:none}
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
 <header>
   <div class="logo" onclick="go('home')">KO<em>MI</em>KU</div>
   <div class="hdr-search">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input id="q" type="text" placeholder="Search manga, manhwa…" onkeydown="onSearch(event)">
+    <input id="q" type="text" placeholder="Манга хайх..." onkeydown="onSearch(event)">
   </div>
   <div id="auth-area">
-    <button class="btn-out" onclick="openMod('register')">Register</button>
-    <button class="btn-lg" onclick="openMod('login')">Login</button>
+    <button class="btn-out" onclick="openMod('register')">Бүртгүүлэх</button>
+    <button class="btn-lg" onclick="openMod('login')">Нэвтрэх</button>
   </div>
 </header>
 
-<!-- ══ BOTTOM NAV ══ -->
 <nav class="bnav">
   <div class="bni on" id="bn-home" onclick="go('home')">
-    <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+    <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Нүүр
   </div>
   <div class="bni" id="bn-browse" onclick="go('browse')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Browse
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Төрөл
   </div>
   <div class="bni" id="bn-manhwa" onclick="go('manhwa')">
-    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Manhwa
+    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Манхва
   </div>
   <div class="bni" id="bn-bookmarks" onclick="go('bookmarks')">
-    <svg viewBox="0 0 24 24"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Saved
+    <svg viewBox="0 0 24 24"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Дуртай
   </div>
 </nav>
 
-<!-- ══ AUTH MODAL ══ -->
 <div id="mod-auth" class="moverlay">
   <div class="mbox">
     <button class="mclose" onclick="closeMod()">✕</button>
-    <div class="mtitle">Welcome to <span style="background:linear-gradient(135deg,#a78bfa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">KOMIKU</span></div>
+    <div class="mtitle">Тавтай морилно уу <span style="background:linear-gradient(135deg,#a78bfa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">KOMIKU</span></div>
     <div class="mtabs">
-      <button class="mtab on" id="t-login" onclick="switchTab('login')">Login</button>
-      <button class="mtab" id="t-reg" onclick="switchTab('register')">Register</button>
+      <button class="mtab on" id="t-login" onclick="switchTab('login')">Нэвтрэх</button>
+      <button class="mtab" id="t-reg" onclick="switchTab('register')">Бүртгүүлэх</button>
     </div>
     <div id="amsg" class="amsg"></div>
-    <input id="ae" type="email" placeholder="Email address" class="ainp">
-    <input id="ap" type="password" placeholder="Password (min 6 chars)" class="ainp" onkeydown="if(event.key==='Enter')doAuth()">
-    <button id="asub" class="abtn" onclick="doAuth()">Login</button>
+    <input id="ae" type="email" placeholder="И-мэйл хаяг" class="ainp">
+    <input id="ap" type="password" placeholder="Нууц үг (дор хаяж 6 тэмдэгт)" class="ainp" onkeydown="if(event.key==='Enter')doAuth()">
+    <button id="asub" class="abtn" onclick="doAuth()">Нэвтрэх</button>
   </div>
 </div>
 
-<!-- ══ PAGES ══ -->
-
-<!-- HOME -->
 <div id="pg-home" class="pg on">
   <div class="hero">
-    <h1>Read <b>Manhwa · Manga</b><br>& Manhua Free</h1>
-    <p>Thousands of titles — updated daily</p>
+    <h1>Үнэгүй <b>Манга · Манхва</b><br>& Манхуа Унших</h1>
+    <p>Өдөр бүр шинэчлэгдэх мянга мянган бүтээлүүд</p>
   </div>
   <div id="sec-foryou" style="display:none">
     <div class="sec">
-      <div class="sh"><h2 class="st">✨ Recommended for You</h2></div>
+      <div class="sh"><h2 class="st">✨ Танд санал болгох</h2></div>
       <div class="grid" id="g-foryou"></div>
     </div>
   </div>
   <div class="sec">
     <div class="sh">
-      <h2 class="st">🔥 Popular Now</h2>
-      <span class="sa" onclick="go('browse')">See all →</span>
+      <h2 class="st">🔥 Ид моод болж буй</h2>
+      <span class="sa" onclick="go('browse')">Бүгд →</span>
     </div>
     <div class="grid" id="g-pop"></div>
   </div>
   <div class="sec">
-    <div class="sh"><h2 class="st">🕒 Latest Updated</h2></div>
+    <div class="sh"><h2 class="st">🕒 Сүүлд шинэчлэгдсэн</h2></div>
     <div class="grid" id="g-lat"></div>
   </div>
 </div>
 
-<!-- BROWSE -->
 <div id="pg-browse" class="pg">
   <div class="sec">
-    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem">Browse</h1>
+    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem">Бүх бүтээл</h1>
     <div class="frow" id="type-bar">
-      <button class="fbtn on" onclick="setType('all',this)">All</button>
-      <button class="fbtn" onclick="setType('manga',this)">Manga 🇯🇵</button>
-      <button class="fbtn" onclick="setType('manhwa',this)">Manhwa 🇰🇷</button>
-      <button class="fbtn" onclick="setType('manhua',this)">Manhua 🇨🇳</button>
+      <button class="fbtn on" onclick="setType('all',this)">Бүгд</button>
+      <button class="fbtn" onclick="setType('manga',this)">Манга 🇯🇵</button>
+      <button class="fbtn" onclick="setType('manhwa',this)">Манхва 🇰🇷</button>
+      <button class="fbtn" onclick="setType('manhua',this)">Манхуа 🇨🇳</button>
     </div>
     <div class="frow" id="genre-bar"></div>
     <div class="grid" id="g-br"></div>
-    <button class="lmore" onclick="loadMore()">Load More</button>
+    <button class="lmore" onclick="loadMore()">Цааш үзэх</button>
   </div>
 </div>
 
-<!-- DETAIL -->
 <div id="pg-detail" class="pg"><div id="det-body"></div></div>
 
-<!-- READER -->
 <div id="pg-reader" class="pg">
   <div class="rbar">
-    <span class="rtit" id="r-tit">Loading…</span>
+    <span class="rtit" id="r-tit">Уншиж байна…</span>
     <div class="rctrls">
-      <button class="rbtn" onclick="chNav(-1)">← Prev</button>
-      <button class="rbtn" onclick="go('detail',cManga)">≡ List</button>
-      <button class="rbtn" onclick="chNav(1)">Next →</button>
+      <button class="rbtn" onclick="chNav(-1)">← Өмнөх</button>
+      <button class="rbtn" onclick="go('detail',cManga)">≡ Жагсаалт</button>
+      <button class="rbtn" onclick="chNav(1)">Дараах →</button>
     </div>
   </div>
   <div class="rpages" id="r-pages"><div class="ctr"><div class="spin"></div></div></div>
 </div>
 
-<!-- SEARCH -->
 <div id="pg-search" class="pg">
   <div class="sec">
-    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem" id="s-tit">Search</h1>
+    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem" id="s-tit">Хайлт</h1>
     <div class="grid" id="g-srch"></div>
   </div>
 </div>
 
-<!-- BOOKMARKS -->
 <div id="pg-bookmarks" class="pg">
   <div class="sec">
-    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem">♥ My Bookmarks</h1>
-    <div id="bm-body"><div class="empty">Login to save bookmarks.</div></div>
+    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem">♥ Дуртай манга</h1>
+    <div id="bm-body"><div class="empty">Нэвтэрсний дараа хадгалсан мангануудаа харах боломжтой.</div></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<footer>KOMIKU — Powered by <a href="https://mangadex.org" target="_blank">MangaDex</a> API &nbsp;·&nbsp; Educational use only</footer>
+<footer>KOMIKU — API: <a href="https://mangadex.org" target="_blank">MangaDex</a> &nbsp;·&nbsp; Зөвхөн сургалтын зориулалттай</footer>
 
 <script>
 /* ══════════════════════════════════════════════════
-   ⚙️  CONFIG — Supabase URL болон ANON KEY-ийг
-       оруулаарай (доорх README.md-г үзнэ үү)
+   ⚙️ SUPABASE ХОЛБОЛТ (Таны хуучин кодын мэдээлэл)
    ══════════════════════════════════════════════════ */
-const SB_URL = 'YOUR_SUPABASE_URL';
-const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SB_URL = 'https://unalluevfphdpjzxtceq.supabase.co';
+const SB_KEY = 'sb_publishable_UX4T2Ar-deHNsX66wGgvwA_ZjCq2M-n';
 
 /* ── INIT ── */
 const API = 'https://api.mangadex.org';
-let sb = null;
-try { if (SB_URL !== 'YOUR_SUPABASE_URL') sb = window.supabase.createClient(SB_URL, SB_KEY); }
-catch(e) { console.warn('Supabase:', e); }
+let sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 let user = null, cManga = null, cChapter = null;
 let chapters = [], browseOff = 0, browseType = 'all', browseTag = '';
-let bmSet = new Set(), mgCache = {};   // manga metadata cache
+let bmSet = new Set(), readChaptersSet = new Set(), mgCache = {};   
 let authMode = 'login';
+let currentChapterLang = 'en';
 
 /* ── UTILS ── */
 const $ = id => document.getElementById(id);
@@ -422,7 +411,7 @@ function skels(n,cls='') {
     <div class="sk-l sk" style="width:48%"></div></div></div>`).join('');
 }
 
-/* ── API FETCH (retry + timeout) ── */
+/* ── API FETCH ── */
 async function apiFetch(url) {
   for (let i=0; i<3; i++) {
     try {
@@ -445,12 +434,12 @@ function coverOf(m) {
 }
 function typeOf(m) {
   const l=m.attributes?.originalLanguage;
-  if(l==='ko') return {lb:'Manhwa',cls:'manhwa'};
-  if(l==='zh'||l==='zh-hk') return {lb:'Manhua',cls:'manhua'};
-  return {lb:'Manga',cls:'manga'};
+  if(l==='ko') return {lb:'Манхва',cls:'manhwa'};
+  if(l==='zh'||l==='zh-hk') return {lb:'Манхуа',cls:'manhua'};
+  return {lb:'Манга',cls:'manga'};
 }
 function titOf(m) {
-  return m.attributes?.title?.en||Object.values(m.attributes?.title||{})[0]||'Unknown';
+  return m.attributes?.title?.en||Object.values(m.attributes?.title||{})[0]||'Нэргүй';
 }
 const PH = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='2' height='3'><rect width='2' height='3' fill='%23141420'/></svg>`;
 
@@ -458,7 +447,6 @@ function cardHtml(m) {
   const tp=typeOf(m), tit=titOf(m), img=coverOf(m);
   const rat=m.attributes?.rating?.average?(m.attributes.rating.average/2).toFixed(1):'';
   const on=bmSet.has(m.id)?'on':'';
-  // cache for recommendations
   mgCache[m.id]={
     title:tit,cover:img,type:tp.lb.toLowerCase(),
     genres:(m.attributes?.tags||[]).filter(t=>t.attributes?.group==='genre').map(t=>t.attributes?.name?.en||'')
@@ -494,10 +482,10 @@ function go(page, id) {
     $('g-br').innerHTML=skels(18);
     document.querySelectorAll('#type-bar .fbtn').forEach(b=>b.classList.remove('on'));
     [...$('type-bar').querySelectorAll('.fbtn')].find(b=>
-      b.textContent.toLowerCase().startsWith(browseType==='all'?'all':browseType))?.classList.add('on');
+      b.getAttribute('onclick').includes(`'${browseType}'`))?.classList.add('on');
     loadBrowse(true);
   } else if (page==='detail'&&id) {
-    cManga=id; $('pg-detail').classList.add('on'); loadDetail(id);
+    cManga=id; currentChapterLang='en'; $('pg-detail').classList.add('on'); loadDetail(id);
   } else if (page==='reader'&&id) {
     $('pg-reader').classList.add('on'); loadReader(id);
   } else if (page==='search') {
@@ -513,46 +501,19 @@ function go(page, id) {
 async function loadHome() {
   $('g-pop').innerHTML=skels(12);
   $('g-lat').innerHTML=skels(12);
-  // No language filter — shows all content, fixes "Failed to load" bug
   const base=`${API}/manga?includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`;
   try {
     const [pop,lat]=await Promise.all([
       apiFetch(`${base}&limit=12&order[followedCount]=desc`),
       apiFetch(`${base}&limit=12&order[updatedAt]=desc`)
     ]);
-    $('g-pop').innerHTML=(pop.data||[]).map(cardHtml).join('')||'<div class="empty">No data.</div>';
-    $('g-lat').innerHTML=(lat.data||[]).map(cardHtml).join('')||'<div class="empty">No data.</div>';
+    $('g-pop').innerHTML=(pop.data||[]).map(cardHtml).join('')||'<div class="empty">Мэдээлэл олдсонгүй.</div>';
+    $('g-lat').innerHTML=(lat.data||[]).map(cardHtml).join('')||'<div class="empty">Мэдээлэл олдсонгүй.</div>';
   } catch {
-    $('g-pop').innerHTML='<div class="empty">⚠️ Failed to load.<br><small>MangaDex may be temporarily unavailable. Please try again.</small></div>';
+    $('g-pop').innerHTML='<div class="empty">⚠️ Ачаалах боломжгүй байна. Дахин оролдоно уу.</div>';
     $('g-lat').innerHTML='';
   }
-  if (user) loadRecs();
-}
-
-/* ── RECOMMENDATIONS ── */
-async function loadRecs() {
-  if (!sb||!user) return;
-  try {
-    const {data:hist}=await sb.from('reading_history').select('manga_genres')
-      .eq('user_id',user.id).order('read_at',{ascending:false}).limit(40);
-    if (!hist?.length) return;
-
-    const freq={};
-    hist.forEach(h=>(h.manga_genres||[]).forEach(g=>{freq[g]=(freq[g]||0)+1}));
-    const topG=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>k);
-    if (!topG.length) return;
-
-    const tRes=await apiFetch(`${API}/manga/tag`);
-    const tMap={};
-    (tRes.data||[]).forEach(t=>{ tMap[(t.attributes?.name?.en||'').toLowerCase()]=t.id; });
-    const tIds=topG.map(g=>tMap[g.toLowerCase()]).filter(Boolean);
-    if (!tIds.length) return;
-
-    const params=tIds.map(id=>`includedTags[]=${id}`).join('&');
-    const rec=await apiFetch(`${API}/manga?limit=12&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive&order[followedCount]=desc&${params}`);
-    const html=(rec.data||[]).map(cardHtml).join('');
-    if (html) { $('g-foryou').innerHTML=html; $('sec-foryou').style.display='block'; }
-  } catch {}
+  // if (user) loadRecs(); // Skipping recs for now to ensure stable DB logic matching old code
 }
 
 /* ── BROWSE ── */
@@ -566,10 +527,10 @@ async function loadBrowse(reset) {
   try {
     const d=await apiFetch(url);
     const html=(d.data||[]).map(cardHtml).join('');
-    if (reset) $('g-br').innerHTML=html||'<div class="empty">No results.</div>';
+    if (reset) $('g-br').innerHTML=html||'<div class="empty">Илэрц олдсонгүй.</div>';
     else $('g-br').innerHTML+=html;
     browseOff+=18;
-  } catch { if(reset) $('g-br').innerHTML='<div class="empty">Failed to load.</div>'; }
+  } catch { if(reset) $('g-br').innerHTML='<div class="empty">Алдаа гарлаа.</div>'; }
 }
 
 function setType(t,btn) {
@@ -582,10 +543,9 @@ function setGenre(id,btn) {
 }
 function loadMore() { loadBrowse(false); }
 
-// Load genre tags
 apiFetch(`${API}/manga/tag`).then(d=>{
   const gs=(d.data||[]).filter(t=>t.attributes?.group==='genre').slice(0,16);
-  $('genre-bar').innerHTML=`<button class="fbtn on" onclick="setGenre('',this)">All</button>`+
+  $('genre-bar').innerHTML=`<button class="fbtn on" onclick="setGenre('',this)">Бүгд</button>`+
     gs.map(g=>`<button class="fbtn" onclick="setGenre('${g.id}',this)">${g.attributes?.name?.en||''}</button>`).join('');
 }).catch(()=>{});
 
@@ -593,63 +553,90 @@ apiFetch(`${API}/manga/tag`).then(d=>{
 async function loadDetail(id) {
   $('det-body').innerHTML='<div class="ctr"><div class="spin"></div></div>';
   try {
-    const [mRes,cRes]=await Promise.all([
-      apiFetch(`${API}/manga/${id}?includes[]=cover_art&includes[]=author`),
-      apiFetch(`${API}/manga/${id}/feed?limit=100&translatedLanguage[]=en&order[chapter]=desc&contentRating[]=safe&contentRating[]=suggestive`)
-    ]);
-    const m=mRes.data; chapters=cRes.data||[];
+    const mRes=await apiFetch(`${API}/manga/${id}?includes[]=cover_art&includes[]=author`);
+    const m=mRes.data;
     const tp=typeOf(m), tit=titOf(m);
-    const desc=m.attributes?.description?.en||'No description available.';
+    const desc=m.attributes?.description?.en||'Тайлбар олдсонгүй.';
     const allTags=m.attributes?.tags||[];
-    const genres=allTags.filter(t=>t.attributes?.group==='genre').map(t=>t.attributes?.name?.en||'');
     const tagHtml=allTags.slice(0,12).map(t=>`<span class="tag">${esc(t.attributes?.name?.en||'')}</span>`).join('');
     const author=m.relationships?.find(r=>r.type==='author')?.attributes?.name||'';
     const img=coverOf(m);
     const bmOn=bmSet.has(id)?'on':'';
-    const first=chapters[chapters.length-1];
 
-    // cache for history saving
-    mgCache[id]={title:tit,cover:img,type:tp.lb.toLowerCase(),genres};
-
-    const chHtml=chapters.slice(0,100).map(ch=>{
-      const num=ch.attributes?.chapter||'?';
-      const ct=ch.attributes?.title?` — ${ch.attributes.title}`:'';
-      const dt=ch.attributes?.publishAt?new Date(ch.attributes.publishAt).toLocaleDateString():'';
-      return `<div class="chi" onclick="openReader('${ch.id}','${esc(tit)} Ch.${num}','${id}')">
-        <span class="chn">Chapter ${num}${esc(ct)}</span>
-        <span class="chd">${dt}</span>
-      </div>`;
-    }).join('')||'<div class="empty">No English chapters found.</div>';
+    mgCache[id]={title:tit,cover:img,type:tp.lb.toLowerCase()};
 
     $('det-body').innerHTML=`
       <div class="dh">
-        <div class="bk" onclick="go('browse')">← Back</div>
+        <div class="bk" onclick="go('browse')">← Буцах</div>
         <div class="dw">
           <div class="dc"><img src="${img||PH}" alt="${esc(tit)}" onerror="this.src='${PH}'"></div>
           <div>
             <span class="badge ${tp.cls}" style="position:static;display:inline-block;margin-bottom:.35rem">${tp.lb}</span>
             <h1 class="dtit">${esc(tit)}</h1>
-            ${author?`<div style="color:var(--muted);font-size:.74rem;margin:.15rem 0">by ${esc(author)}</div>`:''}
+            ${author?`<div style="color:var(--muted);font-size:.74rem;margin:.15rem 0">Зохиогч: ${esc(author)}</div>`:''}
             <div class="tags">${tagHtml}</div>
             <p class="ddesc">${esc(desc)}</p>
             <div class="stats">
-              <div><div class="sv">${m.attributes?.status||'—'}</div><div class="sl">Status</div></div>
-              ${m.attributes?.year?`<div><div class="sv">${m.attributes.year}</div><div class="sl">Year</div></div>`:''}
-              <div><div class="sv">${chapters.length}</div><div class="sl">Chapters</div></div>
+              <div><div class="sv">${m.attributes?.status||'—'}</div><div class="sl">Төлөв</div></div>
+              ${m.attributes?.year?`<div><div class="sv">${m.attributes.year}</div><div class="sl">Он</div></div>`:''}
             </div>
             <div class="dact">
-              ${first?`<button class="brd" onclick="openReader('${first.id}','${esc(tit)} Ch.1','${id}')">▶ Start Reading</button>`:''}
               <button class="bbm ${bmOn}" id="det-bm" onclick="toggleBm(null,'${id}')">
-                ${bmSet.has(id)?'♥ Saved':'♡ Bookmark'}</button>
+                ${bmSet.has(id)?'♥ Хадгалсан':'♡ Хадгалах'}</button>
             </div>
           </div>
         </div>
       </div>
       <div class="sec">
-        <h2 class="st" style="margin-bottom:.7rem">Chapter List</h2>
-        <div class="chl">${chHtml}</div>
+        <h2 class="st" style="margin-bottom:.7rem">Бүлгүүд</h2>
+        
+        <div class="frow" id="lang-bar" style="margin-bottom:1rem;">
+          <button class="fbtn on" onclick="changeChapLang('en', this)">🇬🇧 Англи</button>
+          <button class="fbtn" onclick="changeChapLang('mn', this)">🇲🇳 Монгол</button>
+          <button class="fbtn" onclick="changeChapLang('ko', this)">🇰🇷 Солонгос</button>
+          <button class="fbtn" onclick="changeChapLang('zh', this)">🇨🇳 Хятад</button>
+        </div>
+
+        <div class="chl" id="det-ch-list"><div class="loading" style="color:var(--muted);font-size:.8rem;">Бүлгүүдийг ачааллаж байна...</div></div>
       </div>`;
-  } catch { $('det-body').innerHTML='<div class="empty">Failed to load details. Try again.</div>'; }
+      
+      loadChapters(id);
+  } catch { $('det-body').innerHTML='<div class="empty">Мэдээлэл ачааллахад алдаа гарлаа.</div>'; }
+}
+
+function changeChapLang(lang, btn) {
+    currentChapterLang = lang;
+    document.querySelectorAll('#lang-bar .fbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    loadChapters(cManga);
+}
+
+async function loadChapters(mangaId) {
+    const listDiv = $('det-ch-list');
+    listDiv.innerHTML = '<div class="ctr"><div class="spin"></div></div>';
+    try {
+        const cRes = await apiFetch(`${API}/manga/${mangaId}/feed?limit=100&translatedLanguage[]=${currentChapterLang}&order[chapter]=desc&contentRating[]=safe&contentRating[]=suggestive`);
+        chapters = cRes.data || [];
+        
+        if(chapters.length === 0) {
+            listDiv.innerHTML = '<div class="empty">⚠️ Энэ хэл дээр бүлэг олдсонгүй</div>';
+            return;
+        }
+
+        const tit = mgCache[mangaId]?.title || 'Бүлэг';
+        listDiv.innerHTML = chapters.map(ch=>{
+            const num=ch.attributes?.chapter||'?';
+            const ct=ch.attributes?.title?` — ${ch.attributes.title}`:'';
+            const dt=ch.attributes?.publishAt?new Date(ch.attributes.publishAt).toLocaleDateString():'';
+            const isRead = readChaptersSet.has(ch.id);
+            return `<div class="chi ${isRead?'read':''}" onclick="openReader('${ch.id}','Chapter ${num}','${mangaId}')">
+                <span class="chn">Бүлэг ${num}${esc(ct)} ${isRead ? '<span class="read-badge">✓ Уншсан</span>' : ''}</span>
+                <span class="chd">${dt}</span>
+            </div>`;
+        }).join('');
+    } catch {
+        listDiv.innerHTML = '<div class="empty">Бүлгүүд ачаалах үед алдаа гарлаа.</div>';
+    }
 }
 
 /* ── READER ── */
@@ -668,20 +655,20 @@ async function loadReader(chId) {
     const d=await apiFetch(`${API}/at-home/server/${chId}`);
     const base=d.baseUrl, hash=d.chapter?.hash, pages=d.chapter?.data||[];
     if (!pages.length) {
-      $('r-pages').innerHTML='<div class="empty" style="color:#999">No pages found for this chapter.<br><small>Try another chapter or translation group.</small></div>';
+      $('r-pages').innerHTML='<div class="empty" style="color:#999">Зураг олдсонгүй.<br><small>Өөр бүлэг эсвэл хэл сонгоно уу.</small></div>';
       return;
     }
     const idx=chapters.findIndex(c=>c.id===chId);
     const num=chapters[idx]?.attributes?.chapter||'?';
     const hasPrev=idx<chapters.length-1, hasNext=idx>0;
     $('r-pages').innerHTML=
-      pages.map((p,i)=>`<img src="${base}/data/${hash}/${p}" alt="Page ${i+1}" loading="${i<3?'eager':'lazy'}">`).join('')+
-      `<div class="rend"><p style="margin-bottom:.65rem">— End of Chapter ${num} —</p>
-      ${hasPrev?`<button onclick="chNav(-1);window.scrollTo(0,0)">← Prev Chapter</button>`:''}
-      ${hasNext?`<button onclick="chNav(1);window.scrollTo(0,0)">Next Chapter →</button>`:''}
-      <button class="back-ch" onclick="go('detail',cManga)">Chapter List</button></div>`;
+      pages.map((p,i)=>`<img src="${base}/data/${hash}/${p}" alt="Хуудас ${i+1}" loading="${i<3?'eager':'lazy'}">`).join('')+
+      `<div class="rend"><p style="margin-bottom:.65rem">— Бүлэг ${num} төгсөв —</p>
+      ${hasPrev?`<button onclick="chNav(-1);window.scrollTo(0,0)">← Өмнөх Бүлэг</button>`:''}
+      ${hasNext?`<button onclick="chNav(1);window.scrollTo(0,0)">Дараах Бүлэг →</button>`:''}
+      <button class="back-ch" onclick="go('detail',cManga)">Жагсаалт руу буцах</button></div>`;
   } catch {
-    $('r-pages').innerHTML='<div class="empty" style="color:#999">Failed to load pages.<br><small>The server may be busy. Please try again.</small></div>';
+    $('r-pages').innerHTML='<div class="empty" style="color:#999">Хуудсууд ачаалласангүй.<br><small>Сервер ачаалалтай байж магадгүй.</small></div>';
   }
 }
 
@@ -690,42 +677,51 @@ function chNav(dir) {
   const next=idx-dir;
   if (next>=0&&next<chapters.length) {
     const ch=chapters[next], num=ch.attributes?.chapter||'?';
-    openReader(ch.id,`Chapter ${num}`,cManga);
+    openReader(ch.id,`Бүлэг ${num}`,cManga);
   } else {
-    toast(dir===1?'Last chapter reached.':'Already at first chapter.');
+    toast(dir===1?'Сүүлийн бүлэг байна.':'Эхний бүлэг байна.');
   }
 }
 
-/* ── READING HISTORY ── */
+/* ── УНШСАН ТҮҮХ ХАДГАЛАХ (Хуучин Database бүтэцтэй ижил) ── */
 async function saveHistory(mangaId, chapterId) {
-  if (!sb||!user) return;
-  const meta=mgCache[mangaId]||{};
-  try {
-    await sb.from('reading_history').upsert({
-      user_id:user.id, manga_id:mangaId, manga_title:meta.title||'',
-      manga_genres:meta.genres||[], chapter_id:chapterId,
-      read_at:new Date().toISOString()
-    },{onConflict:'user_id,manga_id'});
-  } catch {}
+  if (!user) return;
+  if (!readChaptersSet.has(chapterId)) {
+      readChaptersSet.add(chapterId);
+      if (sb) {
+          try {
+             // Хуучин кодын table name "read_chapters" -тэй нийцүүлсэн
+             await sb.from('read_chapters').insert({ user_id: user.id, chapter_id: chapterId, manga_id: mangaId });
+          } catch(e) {}
+      }
+  }
 }
 
-/* ── BOOKMARKS ── */
+/* ── BOOKMARKS / ДУРТАЙ (Хуучин Database бүтэцтэй ижил) ── */
 async function toggleBm(e, mangaId) {
   if(e){e.stopPropagation();e.preventDefault();}
-  if (!user) { openMod('login'); toast('Please login to bookmark'); return; }
+  if (!user) { openMod('login'); toast('Хадгалахын тулд нэвтэрнэ үү'); return; }
   const meta=mgCache[mangaId]||{};
   const adding=!bmSet.has(mangaId);
+  
   if (adding) {
     bmSet.add(mangaId);
-    if(sb) await sb.from('bookmarks').upsert({user_id:user.id,manga_id:mangaId,
-      manga_title:meta.title||'',cover_url:meta.cover||'',manga_type:meta.type||'manga'});
-    toast('♥ Bookmarked!');
+    if(sb) {
+        // Хуучин кодын table name "favorites" -тэй нийцүүлсэн
+        await sb.from('favorites').upsert({
+            user_id: user.id, 
+            manga_id: mangaId,
+            manga_title: meta.title||'',
+            cover_url: meta.cover||''
+        }, {onConflict: 'user_id,manga_id'});
+    }
+    toast('♥ Хадгалагдлаа!');
   } else {
     bmSet.delete(mangaId);
-    if(sb) await sb.from('bookmarks').delete().match({user_id:user.id,manga_id:mangaId});
-    toast('Bookmark removed.');
+    if(sb) await sb.from('favorites').delete().match({user_id:user.id,manga_id:mangaId});
+    toast('Жагсаалтаас хасав.');
   }
-  // Update all heart buttons for this manga
+  
   document.querySelectorAll('.hrt').forEach(btn=>{
     if((btn.getAttribute('onclick')||'').includes(`'${mangaId}'`)) {
       btn.textContent=adding?'♥':'♡';
@@ -733,38 +729,37 @@ async function toggleBm(e, mangaId) {
     }
   });
   const db=$('det-bm');
-  if(db&&cManga===mangaId){db.textContent=adding?'♥ Saved':'♡ Bookmark';db.classList.toggle('on',adding);}
+  if(db&&cManga===mangaId){db.textContent=adding?'♥ Хадгалсан':'♡ Хадгалах';db.classList.toggle('on',adding);}
 }
 
 async function loadBmPage() {
   const body=$('bm-body');
-  if (!user){body.innerHTML='<div class="empty">Login to see your bookmarks.</div>';return;}
-  if (!sb){body.innerHTML='<div class="empty">Supabase not configured. See README.</div>';return;}
+  if (!user){body.innerHTML='<div class="empty">Нэвтэрч орж дуртай мангаа харна уу.</div>';return;}
   body.innerHTML='<div class="ctr"><div class="spin"></div></div>';
   try {
-    const {data}=await sb.from('bookmarks').select('*').eq('user_id',user.id).order('added_at',{ascending:false});
-    if (!data?.length){body.innerHTML='<div class="empty">No bookmarks yet.<br>Tap ♡ on any title to save it.</div>';return;}
+    const {data}=await sb.from('favorites').select('*').eq('user_id',user.id);
+    if (!data?.length){body.innerHTML='<div class="empty">Дуртай манга алга байна.<br>Манганы ♡ товчийг дарж хадгална уу.</div>';return;}
     body.innerHTML=`<div class="grid">${data.map(b=>`
       <div class="card" onclick="go('detail','${b.manga_id}')">
         <div class="cover">
           <img src="${b.cover_url||PH}" alt="${esc(b.manga_title)}" loading="lazy" onerror="this.src='${PH}'">
-          <span class="badge ${b.manga_type||'manga'}">${(b.manga_type||'manga').charAt(0).toUpperCase()+(b.manga_type||'manga').slice(1)}</span>
+          <span class="badge manga">Хадгалсан</span>
           <button class="hrt on" onclick="toggleBm(event,'${b.manga_id}')">♥</button>
         </div>
         <div class="ci"><div class="ct">${esc(b.manga_title)}</div></div>
       </div>`).join('')}</div>`;
-  } catch{body.innerHTML='<div class="empty">Failed to load bookmarks.</div>';}
+  } catch{body.innerHTML='<div class="empty">Ачааллахад алдаа гарлаа.</div>';}
 }
 
 /* ── SEARCH ── */
 function onSearch(e) {
   if(e.key!=='Enter') return;
   const q=$('q').value.trim(); if(!q) return;
-  go('search'); $('s-tit').textContent=`Results for "${q}"`;
+  go('search'); $('s-tit').textContent=`"${q}" хайлтын илэрц`;
   $('g-srch').innerHTML=skels(12);
   apiFetch(`${API}/manga?title=${encodeURIComponent(q)}&limit=20&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`)
-    .then(d=>{ $('g-srch').innerHTML=(d.data||[]).map(cardHtml).join('')||'<div class="empty">No results found.</div>'; })
-    .catch(()=>{ $('g-srch').innerHTML='<div class="empty">Search failed. Please try again.</div>'; });
+    .then(d=>{ $('g-srch').innerHTML=(d.data||[]).map(cardHtml).join('')||'<div class="empty">Илэрц олдсонгүй.</div>'; })
+    .catch(()=>{ $('g-srch').innerHTML='<div class="empty">Хайлт амжилтгүй боллоо.</div>'; });
 }
 
 /* ── AUTH ── */
@@ -780,18 +775,17 @@ function switchTab(mode) {
   authMode=mode;
   $('t-login').classList.toggle('on',mode==='login');
   $('t-reg').classList.toggle('on',mode==='register');
-  $('asub').textContent=mode==='login'?'Login':'Create Account';
+  $('asub').textContent=mode==='login'?'Нэвтрэх':'Бүртгүүлэх';
   $('amsg').textContent=''; $('amsg').className='amsg';
 }
 
 async function doAuth() {
-  if (!sb){ setMsg('Supabase not configured. See README.','err'); return; }
   const email=$('ae').value.trim(), pass=$('ap').value;
   const btn=$('asub');
-  if (!email||!pass){ setMsg('Please fill in all fields.','err'); return; }
-  if (pass.length<6){ setMsg('Password must be at least 6 characters.','err'); return; }
+  if (!email||!pass){ setMsg('Бүх талбарыг бөглөнө үү.','err'); return; }
+  if (pass.length<6){ setMsg('Нууц үг 6-аас дээш тэмдэгт байна.','err'); return; }
 
-  btn.disabled=true; btn.textContent='Please wait…'; $('amsg').textContent='';
+  btn.disabled=true; btn.textContent='Түр хүлээнэ үү…'; $('amsg').textContent='';
   try {
     let data, error;
     if (authMode==='login') {
@@ -802,15 +796,14 @@ async function doAuth() {
     if (error) throw error;
     user=data.user||data.session?.user;
     if (user) {
-      if (authMode==='register') setMsg('✓ Account created! Welcome to KOMIKU.','ok');
-      else { closeMod(); toast(`Welcome back, ${user.email.split('@')[0]}!`); }
-      await loadUserBmSet(); updateAuthUI();
-      loadRecs();
+      if (authMode==='register') setMsg('✓ Бүртгэл амжилттай!','ok');
+      else { closeMod(); toast(`Тавтай морил, ${user.email.split('@')[0]}!`); }
+      await loadUserData(); updateAuthUI();
     }
   } catch(err) {
-    setMsg(err.message||'Authentication failed. Please try again.','err');
+    setMsg(err.message||'Алдаа гарлаа.','err');
   }
-  btn.disabled=false; btn.textContent=authMode==='login'?'Login':'Create Account';
+  btn.disabled=false; btn.textContent=authMode==='login'?'Нэвтрэх':'Бүртгүүлэх';
 }
 
 function setMsg(msg,cls) {
@@ -819,17 +812,21 @@ function setMsg(msg,cls) {
 
 async function doLogout() {
   if(sb) await sb.auth.signOut();
-  user=null; bmSet.clear(); updateAuthUI();
-  $('sec-foryou').style.display='none';
-  toast('Logged out successfully.');
+  user=null; bmSet.clear(); readChaptersSet.clear(); updateAuthUI();
+  toast('Амжилттай гарлаа.');
   if ($('pg-bookmarks').classList.contains('on')) go('home');
 }
 
-async function loadUserBmSet() {
+async function loadUserData() {
   if(!sb||!user) return;
   try {
-    const {data}=await sb.from('bookmarks').select('manga_id').eq('user_id',user.id);
-    bmSet=new Set((data||[]).map(b=>b.manga_id));
+    // 1. Дуртай манга татах (favorites)
+    const {data: favs} = await sb.from('favorites').select('manga_id').eq('user_id',user.id);
+    bmSet=new Set((favs||[]).map(b=>b.manga_id));
+    
+    // 2. Уншсан бүлгүүд татах (read_chapters)
+    const {data: reads} = await sb.from('read_chapters').select('chapter_id').eq('user_id',user.id);
+    readChaptersSet=new Set((reads||[]).map(r=>r.chapter_id));
   } catch {}
 }
 
@@ -841,28 +838,27 @@ function updateAuthUI() {
       <div class="avatar" onclick="this.nextElementSibling.classList.toggle('open');event.stopPropagation()">${init}</div>
       <div class="avm" id="uavm">
         <div class="avm-email">${user.email}</div>
-        <a onclick="go('bookmarks')">♥ My Bookmarks</a>
-        <a class="logout" onclick="doLogout()">→ Logout</a>
+        <a onclick="go('bookmarks')">♥ Дуртай</a>
+        <a class="logout" onclick="doLogout()">→ Гарах</a>
       </div>
     </div>`;
   } else {
-    area.innerHTML=`<button class="btn-out" onclick="openMod('register')">Register</button>
-      <button class="btn-lg" onclick="openMod('login')">Login</button>`;
+    area.innerHTML=`<button class="btn-out" onclick="openMod('register')">Бүртгүүлэх</button>
+      <button class="btn-lg" onclick="openMod('login')">Нэвтрэх</button>`;
   }
 }
 document.addEventListener('click',()=>document.querySelectorAll('.avm').forEach(m=>m.classList.remove('open')));
 
 /* ── STARTUP ── */
 async function initApp() {
-  if (!sb) { loadHome(); return; }
   try {
     const {data:{session}}=await sb.auth.getSession();
-    if (session?.user) { user=session.user; await loadUserBmSet(); updateAuthUI(); }
+    if (session?.user) { user=session.user; await loadUserData(); updateAuthUI(); }
   } catch {}
   loadHome();
   sb.auth.onAuthStateChange(async(_,session)=>{
-    if (session?.user) { user=session.user; await loadUserBmSet(); updateAuthUI(); }
-    else { user=null; bmSet.clear(); updateAuthUI(); }
+    if (session?.user) { user=session.user; await loadUserData(); updateAuthUI(); }
+    else { user=null; bmSet.clear(); readChaptersSet.clear(); updateAuthUI(); }
   });
 }
 
