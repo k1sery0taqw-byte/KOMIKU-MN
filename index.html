@@ -446,6 +446,12 @@ header {
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
+/* Profile avatar in header */
+.avatar-img {
+  width: 34px; height: 34px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--accent);
+}
+
 footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 1rem; text-align: center; color: var(--muted); font-size: .7rem; margin-top: 1.5rem; }
 </style>
 </head>
@@ -569,6 +575,38 @@ footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 1
     <input id="ae" type="email" placeholder="И-мэйл хаяг" class="ainp">
     <input id="ap" type="password" placeholder="Нууц үг" class="ainp" onkeydown="if(event.key==='Enter')doAuth()">
     <button id="asub" class="abtn" onclick="doAuth()">Нэвтрэх</button>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="overlay" id="profile-modal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeProfile()">✕</button>
+    <div class="mtitle">Профайл тохиргоо</div>
+
+    <!-- Avatar upload -->
+    <div style="text-align:center;margin-bottom:1.1rem">
+      <div id="pfp-wrap" style="position:relative;display:inline-block;cursor:pointer" onclick="$('pfp-input').click()">
+        <div id="pfp-display" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;overflow:hidden;margin:0 auto;">
+          <span id="pfp-init">?</span>
+        </div>
+        <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;border:2px solid var(--bg2)">📷</div>
+      </div>
+      <input id="pfp-input" type="file" accept="image/*" style="display:none" onchange="previewPfp(this)">
+      <div style="font-size:.7rem;color:var(--muted);margin-top:.4rem">Зураг дарж солих</div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:.75rem">
+      <label style="display:block;font-size:.72rem;color:var(--muted2);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.5px">Хочит нэр (Nickname)</label>
+      <input id="profile-nick" type="text" placeholder="Жишээ: MangaFan123" class="ainp" maxlength="20">
+      <div style="font-size:.65rem;color:var(--muted);margin-top:.25rem">20 тэмдэгт хүртэл</div>
+    </div>
+
+    <div id="profile-msg" class="amsg"></div>
+
+    <button class="abtn" onclick="saveProfile()">
+      💾 Хадгалах
+    </button>
   </div>
 </div>
 
@@ -938,9 +976,16 @@ async function doAuth() {
     if(error) throw error;
     user=data.user||data.session?.user;
     if(user){
-      if(authMode==='register') setMsg('✓ Бүртгэл амжилттай!','ok');
-      else { closeAuth(); toast(`Тавтай морил, ${user.email.split('@')[0]}!`); }
-      await loadUserData(); updateAuthUI();
+      if(authMode==='register') {
+        setMsg('✓ Бүртгэл амжилттай!','ok');
+        await loadUserData(); updateAuthUI();
+        setTimeout(()=>{ closeAuth(); openProfileModal(); }, 800);
+      } else {
+        closeAuth();
+        await loadUserData(); updateAuthUI();
+        const name = userProfile?.nickname || user.email.split('@')[0];
+        toast(`Тавтай морил, ${name}!`);
+      }
     }
   } catch(err) { setMsg(err.message||'Алдаа гарлаа.','err'); }
   btn.disabled=false; btn.textContent=authMode==='login'?'Нэвтрэх':'Бүртгүүлэх';
@@ -949,20 +994,107 @@ async function doAuth() {
 function setMsg(msg,cls) { const el=$('amsg'); el.textContent=msg; el.className=`amsg ${cls}`; }
 
 async function doLogout() {
+  // Close dropdown first
+  document.querySelectorAll('.avm').forEach(m=>m.classList.remove('open'));
   await sb.auth.signOut();
-  user=null; bmSet.clear(); readSet.clear(); updateAuthUI();
+  user=null; userProfile=null; bmSet.clear(); readSet.clear();
+  updateAuthUI();
   toast('Амжилттай гарлаа.');
   if($('pg-bookmarks').classList.contains('on')) go('home');
 }
 
+/* ── PROFILE ── */
+let userProfile = null;
+let pfpFile = null;
+
 async function loadUserData() {
   if(!user) return;
-  const [{data:favs},{data:reads}] = await Promise.all([
+  const [
+    {data:favs},
+    {data:reads},
+    {data:profile}
+  ] = await Promise.all([
     sb.from('favorites').select('manga_id').eq('user_id',user.id),
-    sb.from('read_chapters').select('chapter_id').eq('user_id',user.id)
+    sb.from('read_chapters').select('chapter_id').eq('user_id',user.id),
+    sb.from('profiles').select('*').eq('user_id',user.id).single()
   ]);
   bmSet = new Set((favs||[]).map(b=>b.manga_id));
   readSet = new Set((reads||[]).map(r=>r.chapter_id));
+  userProfile = profile || null;
+}
+
+function openProfileModal() {
+  // Close dropdown
+  document.querySelectorAll('.avm').forEach(m=>m.classList.remove('open'));
+  pfpFile = null;
+  // Fill current values
+  $('profile-nick').value = userProfile?.nickname || '';
+  $('profile-msg').textContent = '';
+  $('profile-msg').className = 'amsg';
+  // Show current pfp
+  const pfpDisp = $('pfp-display');
+  if(userProfile?.avatar_url) {
+    pfpDisp.innerHTML = `<img src="${userProfile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  } else {
+    const init = (userProfile?.nickname||user.email||'U')[0].toUpperCase();
+    $('pfp-init').textContent = init;
+  }
+  $('profile-modal').classList.add('open');
+}
+
+function closeProfile() {
+  $('profile-modal').classList.remove('open');
+}
+
+function previewPfp(input) {
+  pfpFile = input.files[0];
+  if(!pfpFile) return;
+  const url = URL.createObjectURL(pfpFile);
+  $('pfp-display').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+}
+
+async function saveProfile() {
+  const nick = $('profile-nick').value.trim();
+  const msgEl = $('profile-msg');
+
+  if(nick && nick.length > 20) {
+    msgEl.textContent = 'Nickname 20 тэмдэгтээс хэтрэхгүй байна уу';
+    msgEl.className = 'amsg err';
+    return;
+  }
+
+  let avatarUrl = userProfile?.avatar_url || null;
+
+  // Upload new pfp if selected
+  if(pfpFile) {
+    msgEl.textContent = 'Зураг байршуулж байна...';
+    msgEl.className = 'amsg';
+    const ext = pfpFile.name.split('.').pop();
+    const path = `avatars/${user.id}.${ext}`;
+    const {error:ue} = await sb.storage.from('manga-images').upload(path, pfpFile, {upsert:true});
+    if(ue) { msgEl.textContent = 'Зураг байршуулахад алдаа: '+ue.message; msgEl.className='amsg err'; return; }
+    const {data:pu} = sb.storage.from('manga-images').getPublicUrl(path);
+    avatarUrl = pu.publicUrl + '?t=' + Date.now();
+  }
+
+  // Upsert profile
+  const {error} = await sb.from('profiles').upsert({
+    user_id: user.id,
+    nickname: nick || null,
+    avatar_url: avatarUrl
+  }, {onConflict: 'user_id'});
+
+  if(error) {
+    msgEl.textContent = 'Алдаа гарлаа: '+error.message;
+    msgEl.className = 'amsg err';
+    return;
+  }
+
+  userProfile = {user_id: user.id, nickname: nick||null, avatar_url: avatarUrl};
+  msgEl.textContent = '✓ Профайл хадгалагдлаа!';
+  msgEl.className = 'amsg ok';
+  updateAuthUI();
+  setTimeout(closeProfile, 1200);
 }
 
 function isAdmin(email) {
@@ -972,26 +1104,43 @@ function isAdmin(email) {
 function updateAuthUI() {
   const area=$('auth-area');
   if(user) {
-    const init=(user.email||'U')[0].toUpperCase();
+    const nick = userProfile?.nickname;
+    const displayName = nick || user.email.split('@')[0];
+    const init = displayName[0].toUpperCase();
     const adminLink = isAdmin(user.email)
-      ? `<a class="avm-admin" onclick="window.location.href='admin.html'">⚙️ Admin Panel</a>`
+      ? `<a class="avm-admin" onclick="event.stopPropagation();window.location.href='admin.html'">⚙️ Admin Panel</a>`
       : '';
-    area.innerHTML=`<div class="avm-wrap">
-      <div class="avatar" onclick="this.nextElementSibling.classList.toggle('open');event.stopPropagation()">${init}</div>
-      <div class="avm">
-        <div class="avm-email">${user.email}</div>
-        <a onclick="go('bookmarks')">♥ Дуртай</a>
+    const avatarHtml = userProfile?.avatar_url
+      ? `<img class="avatar-img" src="${userProfile.avatar_url}" alt="">`
+      : `<div class="avatar">${init}</div>`;
+
+    area.innerHTML=`<div class="avm-wrap" id="avm-wrap">
+      ${avatarHtml}
+      <div class="avm" id="user-avm">
+        <div class="avm-email">${nick ? `<strong>${nick}</strong><br><span style="font-size:.65rem">${user.email}</span>` : user.email}</div>
+        <a onclick="event.stopPropagation();go('bookmarks')">♥ Дуртай</a>
+        <a onclick="event.stopPropagation();openProfileModal()">👤 Профайл засах</a>
         ${adminLink}
-        <a class="avm-logout" onclick="doLogout()">→ Гарах</a>
+        <a class="avm-logout" onclick="event.stopPropagation();doLogout()">→ Гарах</a>
       </div>
     </div>`;
+
+    // Toggle dropdown on avatar click
+    area.querySelector('.avatar, .avatar-img').addEventListener('click', function(e) {
+      e.stopPropagation();
+      $('user-avm').classList.toggle('open');
+    });
   } else {
     area.innerHTML=`<button class="btn-reg" onclick="openAuth('register')">Бүртгүүлэх</button>
       <button class="btn-login" onclick="openAuth('login')">Нэвтрэх</button>`;
   }
 }
 
-document.addEventListener('click',()=>document.querySelectorAll('.avm').forEach(m=>m.classList.remove('open')));
+// Close dropdowns on outside click
+document.addEventListener('click', ()=>document.querySelectorAll('.avm').forEach(m=>m.classList.remove('open')));
+
+// Profile modal close on outside click
+$('profile-modal').addEventListener('click', e=>{ if(e.target===$('profile-modal')) closeProfile(); });
 
 /* ── STARTUP ── */
 async function init() {
