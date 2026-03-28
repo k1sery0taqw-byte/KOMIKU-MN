@@ -5,276 +5,461 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KOMIKU — Монгол Манга, Манхва</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mongolian&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#09090f;--bg2:#111118;--card:#141420;--cardH:#1b1b28;
-  --border:#242435;--accent:#8b5cf6;--a2:#a78bfa;
-  --pink:#ec4899;--blue:#38bdf8;--text:#e2e2f0;--muted:#6868a0;
-  --green:#22c55e;--red:#f43f5e;
+/* ══════════════════ VARIABLES ══════════════════ */
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111117;
+  --bg3: #16161f;
+  --card: #1a1a25;
+  --cardH: #20202e;
+  --border: #2a2a3d;
+  --accent: #6366f1;
+  --a2: #818cf8;
+  --pink: #ec4899;
+  --cyan: #22d3ee;
+  --green: #22c55e;
+  --red: #f43f5e;
+  --yellow: #fbbf24;
+  --text: #e2e2f0;
+  --muted: #6b6b95;
+  --muted2: #9898b8;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:64px}
 
-/* ── HEADER ── */
-header{
-  position:sticky;top:0;z-index:300;
-  background:rgba(9,9,15,.97);backdrop-filter:blur(18px);
-  border-bottom:1px solid var(--border);height:58px;
-  padding:0 1rem;display:flex;align-items:center;gap:.65rem
-}
-.logo{
-  font-size:1.25rem;font-weight:900;letter-spacing:1px;cursor:pointer;flex-shrink:0;
-  background:linear-gradient(135deg,#a78bfa 0%,#38bdf8 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent
-}
-.logo em{font-style:normal;-webkit-text-fill-color:var(--pink)}
-.hdr-search{
-  flex:1;display:flex;align-items:center;gap:.4rem;
-  background:var(--card);border:1px solid var(--border);border-radius:20px;
-  padding:.32rem .85rem;transition:border-color .2s
-}
-.hdr-search:focus-within{border-color:var(--accent)}
-.hdr-search input{background:none;border:none;outline:none;color:var(--text);
-  font-size:.8rem;width:100%;font-family:inherit}
-.hdr-search input::placeholder{color:var(--muted)}
-#auth-area{display:flex;align-items:center;gap:.4rem;margin-left:auto;flex-shrink:0}
-.btn-lg,.btn-out{
-  padding:.32rem .85rem;border-radius:16px;font-size:.75rem;
-  font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s
-}
-.btn-lg{background:var(--accent);border:none;color:#fff}
-.btn-lg:hover{opacity:.85}
-.btn-out{background:transparent;border:1px solid var(--border);color:var(--muted)}
-.btn-out:hover{border-color:var(--a2);color:var(--a2)}
-.avatar{
-  width:32px;height:32px;border-radius:50%;flex-shrink:0;cursor:pointer;
-  background:linear-gradient(135deg,var(--accent),var(--blue));
-  display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700
-}
-.avm-wrap{position:relative}
-.avm{
-  position:absolute;top:calc(100%+8px);right:0;min-width:190px;
-  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
-  overflow:hidden;display:none;z-index:400;box-shadow:0 8px 28px rgba(0,0,0,.5)
-}
-.avm.open{display:block}
-.avm-email{padding:.55rem 1rem .35rem;font-size:.7rem;color:var(--muted);
-  border-bottom:1px solid var(--border)}
-.avm a{display:block;padding:.6rem 1rem;font-size:.8rem;cursor:pointer;transition:background .2s}
-.avm a:hover{background:var(--card)}
-.avm .logout{color:var(--red)}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ── BOTTOM NAV ── */
-.bnav{
-  position:fixed;bottom:0;left:0;right:0;z-index:300;height:60px;
-  background:rgba(9,9,15,.97);backdrop-filter:blur(18px);
-  border-top:1px solid var(--border);display:flex
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 70px;
+  overflow-x: hidden;
 }
-.bni{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;color:var(--muted);cursor:pointer;font-size:.58rem;font-weight:500;transition:color .2s
+
+/* ══════════════════ HEADER ══════════════════ */
+header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(10,10,15,.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(42,42,61,.6);
+  height: 56px;
+  padding: 0 1rem;
+  display: flex; align-items: center; gap: .7rem;
 }
-.bni.on,.bni:hover{color:var(--a2)}
-.bni svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 
-/* ── PAGES ── */
-.pg{display:none}.pg.on{display:block}
-
-/* ── HERO ── */
-.hero{
-  padding:2.2rem 1rem 1.25rem;text-align:center;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(139,92,246,.18) 0%,transparent 70%)
+.logo {
+  font-size: 1.3rem; font-weight: 900;
+  letter-spacing: .5px; cursor: pointer; flex-shrink: 0;
+  background: linear-gradient(135deg, #818cf8 0%, #22d3ee 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-.hero h1{font-size:clamp(1.5rem,5.5vw,2.4rem);font-weight:900;line-height:1.15;margin-bottom:.4rem}
-.hero h1 b{font-weight:900;background:linear-gradient(135deg,var(--a2),var(--blue));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{color:var(--muted);font-size:.8rem}
 
-/* ── SECTION ── */
-.sec{padding:1.25rem 1rem;max-width:1400px;margin:0 auto}
-.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem}
-.st{font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:.45rem}
-.st::before{content:'';width:3px;height:.95em;border-radius:2px;display:block;
-  background:linear-gradient(var(--a2),var(--blue))}
-.sa{color:var(--a2);font-size:.72rem;cursor:pointer}
-
-/* ── GRID ── */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
-@media(min-width:480px){.grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}}
-@media(min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.85rem}}
-@media(min-width:1100px){.grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}}
-
-/* ── CARD ── */
-.card{cursor:pointer;border-radius:8px;overflow:hidden;background:var(--card);
-  transition:transform .18s,box-shadow .18s;position:relative}
-.card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(139,92,246,.22)}
-.cover{position:relative;aspect-ratio:2/3;overflow:hidden;background:var(--cardH)}
-.cover img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
-.card:hover .cover img{transform:scale(1.04)}
-.badge{position:absolute;top:5px;left:5px;font-size:.52rem;font-weight:700;
-  padding:2px 5px;border-radius:3px;text-transform:uppercase;color:#fff;letter-spacing:.3px}
-.badge.manhwa{background:#db2777}.badge.manhua{background:#d97706}.badge.manga{background:#2563eb}
-.hrt{
-  position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;
-  background:rgba(0,0,0,.65);border:none;cursor:pointer;font-size:.9rem;
-  display:flex;align-items:center;justify-content:center;z-index:2;transition:all .2s
+.hdr-search {
+  flex: 1; display: flex; align-items: center; gap: .4rem;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 24px; padding: .35rem 1rem;
+  transition: border-color .2s;
 }
-.hrt:hover{background:rgba(0,0,0,.88);transform:scale(1.1)}
-.hrt.on{color:var(--pink)}
-.ci{padding:.48rem .52rem .55rem}
-.ct{font-size:.68rem;font-weight:600;line-height:1.3;margin-bottom:.22rem;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cm{font-size:.6rem;color:var(--muted);display:flex;gap:.3rem;align-items:center}
-.star{color:#fbbf24}
-
-/* ── SKELETON ── */
-@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.sk{background:linear-gradient(90deg,var(--card) 25%,var(--cardH) 50%,var(--card) 75%);
-  background-size:200% 100%;animation:sh 1.4s infinite;border-radius:3px}
-.sk-card{border-radius:8px;overflow:hidden;background:var(--card)}
-.sk-c{aspect-ratio:2/3}.sk-c.sk{border-radius:0}
-.sk-p{padding:.48rem .52rem .55rem}
-.sk-l{height:.58rem;margin-bottom:.28rem}
-
-/* ── AUTH MODAL ── */
-.moverlay{
-  position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);
-  display:none;align-items:center;justify-content:center;padding:1rem
+.hdr-search:focus-within { border-color: var(--accent); }
+.hdr-search input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: .82rem; width: 100%; font-family: inherit;
 }
-.moverlay.open{display:flex}
-.mbox{
-  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
-  width:100%;max-width:370px;padding:1.65rem;position:relative
+.hdr-search input::placeholder { color: var(--muted); }
+
+#auth-area { display: flex; align-items: center; gap: .4rem; margin-left: auto; flex-shrink: 0; }
+
+.btn-reg, .btn-login {
+  padding: .3rem .8rem; border-radius: 20px;
+  font-size: .75rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all .2s;
 }
-.mclose{position:absolute;top:.85rem;right:.85rem;background:none;border:none;
-  color:var(--muted);font-size:1.1rem;cursor:pointer}
-.mtitle{font-size:1.2rem;font-weight:800;text-align:center;margin-bottom:1.1rem}
-.mtabs{display:flex;gap:.4rem;background:var(--card);border-radius:8px;padding:.22rem;margin-bottom:1.1rem}
-.mtab{flex:1;padding:.46rem;background:none;border:none;border-radius:6px;
-  color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
-.mtab.on{background:var(--accent);color:#fff}
-.ainp{
-  width:100%;padding:.6rem .8rem;background:var(--card);border:1px solid var(--border);
-  border-radius:8px;color:var(--text);font-size:.83rem;margin-bottom:.6rem;
-  outline:none;font-family:inherit;transition:border-color .2s
+.btn-reg { background: transparent; border: 1px solid var(--border); color: var(--muted2); }
+.btn-reg:hover { border-color: var(--a2); color: var(--a2); }
+.btn-login { background: var(--accent); border: none; color: #fff; }
+.btn-login:hover { opacity: .88; }
+
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; font-weight: 700; position: relative;
 }
-.ainp:focus{border-color:var(--accent)}
-.abtn{
-  width:100%;padding:.65rem;background:linear-gradient(135deg,var(--accent),#6366f1);
-  border:none;border-radius:8px;color:#fff;font-size:.88rem;font-weight:700;
-  cursor:pointer;font-family:inherit;transition:opacity .2s
+
+.avm-wrap { position: relative; }
+.avm {
+  position: absolute; top: calc(100%+8px); right: 0; min-width: 200px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; display: none; z-index: 500;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
 }
-.abtn:hover{opacity:.87}.abtn:disabled{opacity:.45;cursor:not-allowed}
-.amsg{font-size:.75rem;margin-bottom:.45rem;min-height:.9rem;padding:.1rem 0}
-.amsg.err{color:var(--red)}.amsg.ok{color:var(--green)}
+.avm.open { display: block; }
+.avm-email { padding: .6rem 1rem .4rem; font-size: .7rem; color: var(--muted); border-bottom: 1px solid var(--border); }
+.avm a {
+  display: block; padding: .65rem 1rem; font-size: .82rem;
+  cursor: pointer; transition: background .15s;
+}
+.avm a:hover { background: var(--card); }
+.avm .avm-admin { color: var(--a2); }
+.avm .avm-logout { color: var(--red); border-top: 1px solid var(--border); }
 
-/* ── FILTERS ── */
-.frow{display:flex;gap:.45rem;overflow-x:auto;padding-bottom:.4rem;
-  margin-bottom:.85rem;scrollbar-width:none}
-.frow::-webkit-scrollbar{display:none}
-.fbtn{flex-shrink:0;padding:.32rem .85rem;border-radius:16px;border:1px solid var(--border);
-  background:var(--card);color:var(--muted);font-size:.73rem;font-weight:500;cursor:pointer;
-  transition:all .2s;font-family:inherit;white-space:nowrap}
-.fbtn:hover,.fbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ══════════════════ BOTTOM NAV ══════════════════ */
+.bnav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; height: 62px;
+  background: rgba(10,10,15,.97); backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(42,42,61,.6);
+  display: flex;
+}
+.bni {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px; color: var(--muted); cursor: pointer;
+  font-size: .6rem; font-weight: 500; transition: color .2s;
+}
+.bni.on, .bni:hover { color: var(--a2); }
+.bni svg { width: 21px; height: 21px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
 
-/* ── DETAIL ── */
-.dh{background:radial-gradient(ellipse 100% 100% at 50% 0%,rgba(139,92,246,.12) 0%,transparent 60%);
-  padding:1.25rem 1rem}
-.dw{display:flex;gap:1.1rem;margin-bottom:1.25rem}
-.dc{width:120px;min-width:120px;border-radius:9px;overflow:hidden;
-  box-shadow:0 6px 22px rgba(0,0,0,.55);flex-shrink:0}
-@media(min-width:480px){.dc{width:155px;min-width:155px}}
-.dc img{width:100%;display:block}
-.dtit{font-size:clamp(.95rem,3.5vw,1.45rem);font-weight:800;line-height:1.2;margin-bottom:.35rem}
-.tags{display:flex;flex-wrap:wrap;gap:.28rem;margin:.4rem 0}
-.tag{padding:.15rem .46rem;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.22);
-  border-radius:3px;font-size:.6rem;color:var(--a2)}
-.ddesc{color:var(--muted);font-size:.78rem;line-height:1.7;
-  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin:.42rem 0}
-.stats{display:flex;gap:1.1rem;flex-wrap:wrap;margin-top:.55rem}
-.sv{font-size:.88rem;font-weight:700;text-transform:capitalize}
-.sl{font-size:.6rem;color:var(--muted)}
-.dact{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
-.brd{padding:.55rem 1.2rem;background:linear-gradient(135deg,var(--accent),#6366f1);
-  color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;
-  font-family:inherit;transition:opacity .2s}
-.brd:hover{opacity:.87}
-.bbm{padding:.55rem .9rem;background:var(--card);border:1px solid var(--border);
-  color:var(--text);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;
-  font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:.3rem}
-.bbm:hover,.bbm.on{background:rgba(236,72,153,.12);border-color:var(--pink);color:var(--pink)}
+/* ══════════════════ PAGES ══════════════════ */
+.pg { display: none; } .pg.on { display: block; }
 
-/* ── CHAPTER LIST ── */
-.chl{display:flex;flex-direction:column;gap:.28rem;margin-top:.85rem}
-.chi{display:flex;align-items:center;justify-content:space-between;
-  padding:.58rem .85rem;background:var(--card);border-radius:7px;cursor:pointer;
-  transition:background .2s;border:1px solid transparent}
-.chi:hover{background:var(--cardH);border-color:var(--border)}
-.chi.read{opacity:0.6;}
-.chn{font-weight:600;font-size:.78rem}
-.chd{font-size:.65rem;color:var(--muted)}
-.read-badge{font-size:10px;background:#22c55e;color:#fff;padding:2px 6px;border-radius:10px;margin-left:8px;vertical-align:middle;}
+/* ══════════════════ HERO BANNER ══════════════════ */
+.hero-wrap {
+  position: relative; overflow: hidden; height: 240px;
+  background: var(--bg2);
+}
+@media(min-width:600px){ .hero-wrap { height: 340px; } }
 
-/* ── READER ── */
-#pg-reader{background:#000;min-height:100vh}
-.rbar{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.97);
-  border-bottom:1px solid #1c1c1c;padding:.45rem 1rem;
-  display:flex;align-items:center;justify-content:space-between;gap:.5rem}
-.rtit{font-size:.76rem;font-weight:600;flex:1;overflow:hidden;
-  white-space:nowrap;text-overflow:ellipsis}
-.rctrls{display:flex;gap:.32rem}
-.rbtn{padding:.28rem .65rem;background:#111;border:1px solid #282828;border-radius:5px;
-  color:var(--text);font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .2s}
-.rbtn:hover{background:var(--accent);border-color:var(--accent)}
-.rpages{max-width:800px;margin:0 auto}
-.rpages img{width:100%;display:block}
-.rend{padding:1.5rem;text-align:center;color:var(--muted);font-size:.8rem}
-.rend button{margin:.3rem;padding:.46rem 1.1rem;border:none;border-radius:6px;
-  color:#fff;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;
-  background:var(--accent);transition:opacity .2s}
-.rend button:hover{opacity:.85}
-.rend .back-ch{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.hero-slide {
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity .6s ease;
+  display: flex; align-items: flex-end;
+}
+.hero-slide.on { opacity: 1; }
 
-/* ── MISC ── */
-.spin{display:inline-block;width:30px;height:30px;border:2.5px solid var(--border);
-  border-top-color:var(--a2);border-radius:50%;animation:rot .7s linear infinite}
-@keyframes rot{to{transform:rotate(360deg)}}
-.ctr{text-align:center;padding:2.5rem}
-.empty{text-align:center;padding:2rem;color:var(--muted);font-size:.82rem}
-.bk{display:inline-flex;align-items:center;gap:.35rem;color:var(--muted);cursor:pointer;
-  font-size:.78rem;margin-bottom:1.1rem;transition:color .2s}
-.bk:hover{color:var(--text)}
-.lmore{display:block;margin:1.25rem auto;padding:.56rem 1.7rem;background:var(--card);
-  border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.78rem;
-  font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s}
-.lmore:hover{background:var(--accent);border-color:var(--accent)}
-footer{background:var(--bg2);border-top:1px solid var(--border);
-  padding:1.1rem;text-align:center;color:var(--muted);font-size:.7rem;margin-top:1.5rem}
-footer a{color:var(--a2);text-decoration:none}
-.toast{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);
-  background:var(--card);border:1px solid var(--border);border-radius:8px;
-  padding:.45rem 1rem;font-size:.76rem;color:var(--text);z-index:500;
-  opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;
-  box-shadow:0 4px 16px rgba(0,0,0,.35)}
-.toast.show{opacity:1}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+.hero-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center top;
+  filter: brightness(.45);
+}
+
+.hero-grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,10,15,1) 0%, rgba(10,10,15,.5) 40%, transparent 70%);
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  padding: 1.25rem 1.1rem 1.4rem; width: 100%;
+}
+
+.hero-badge {
+  display: inline-block; padding: .18rem .55rem; border-radius: 4px;
+  font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  margin-bottom: .5rem; background: var(--accent); color: #fff;
+}
+
+.hero-title {
+  font-size: clamp(1.1rem, 4vw, 1.7rem); font-weight: 800;
+  line-height: 1.2; margin-bottom: .3rem;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+
+.hero-meta { font-size: .72rem; color: var(--muted2); margin-bottom: .65rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+.hero-meta span { display: flex; align-items: center; gap: .22rem; }
+
+.hero-btns { display: flex; gap: .5rem; }
+.h-btn {
+  padding: .45rem 1rem; border-radius: 7px; font-size: .78rem;
+  font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: all .2s; display: flex; align-items: center; gap: .35rem;
+  border: none;
+}
+.h-btn-primary { background: var(--accent); color: #fff; }
+.h-btn-primary:hover { opacity: .88; }
+.h-btn-ghost { background: rgba(255,255,255,.12); color: #fff; backdrop-filter: blur(4px); }
+.h-btn-ghost:hover { background: rgba(255,255,255,.2); }
+
+/* Hero dots */
+.hero-dots {
+  position: absolute; bottom: 1rem; right: 1rem; z-index: 3;
+  display: flex; gap: .35rem;
+}
+.hero-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,.3); cursor: pointer; transition: all .2s;
+}
+.hero-dot.on { background: #fff; width: 18px; border-radius: 3px; }
+
+/* ══════════════════ SECTIONS ══════════════════ */
+.sec { padding: 1.1rem 1rem; max-width: 1400px; margin: 0 auto; }
+.sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .85rem; }
+.sec-title { font-size: .95rem; font-weight: 700; display: flex; align-items: center; gap: .45rem; }
+.sec-title::before {
+  content: ''; width: 3px; height: 1em; border-radius: 2px; display: block;
+  background: linear-gradient(var(--a2), var(--cyan));
+}
+.sec-more { color: var(--a2); font-size: .72rem; cursor: pointer; }
+
+/* Latest chapters horizontal scroll */
+.hscroll {
+  display: flex; gap: .6rem; overflow-x: auto; padding-bottom: .5rem;
+  scrollbar-width: none;
+}
+.hscroll::-webkit-scrollbar { display: none; }
+
+.ch-card {
+  flex-shrink: 0; width: 130px; cursor: pointer;
+  border-radius: 8px; overflow: hidden; background: var(--card);
+  transition: transform .2s; position: relative;
+}
+.ch-card:hover { transform: translateY(-2px); }
+.ch-cover { aspect-ratio: 2/3; position: relative; overflow: hidden; background: var(--bg3); }
+.ch-cover img { width: 100%; height: 100%; object-fit: cover; }
+.ch-new {
+  position: absolute; top: 5px; right: 5px;
+  background: var(--pink); color: #fff;
+  font-size: .55rem; font-weight: 700; padding: 2px 5px; border-radius: 3px;
+  text-transform: uppercase;
+}
+.ch-info { padding: .42rem .5rem .5rem; }
+.ch-title { font-size: .68rem; font-weight: 600; line-height: 1.3; margin-bottom: .15rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ch-num { font-size: .6rem; color: var(--a2); font-weight: 600; }
+
+/* ══════════════════ MANGA GRID ══════════════════ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); gap: .6rem;
+}
+@media(min-width:480px){ .grid { grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); } }
+@media(min-width:768px){ .grid { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: .85rem; } }
+
+.card {
+  cursor: pointer; border-radius: 9px; overflow: hidden;
+  background: var(--card); transition: transform .2s, box-shadow .2s;
+  position: relative;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(99,102,241,.2); }
+.cover { position: relative; aspect-ratio: 2/3; overflow: hidden; background: var(--bg3); }
+.cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.card:hover .cover img { transform: scale(1.05); }
+
+.type-badge {
+  position: absolute; top: 6px; left: 6px;
+  font-size: .52rem; font-weight: 700; padding: 2px 5px;
+  border-radius: 3px; text-transform: uppercase; color: #fff;
+}
+.type-manhwa { background: #db2777; }
+.type-manhua { background: #d97706; }
+.type-manga  { background: #2563eb; }
+
+.hrt {
+  position: absolute; top: 5px; right: 5px; width: 27px; height: 27px;
+  border-radius: 50%; background: rgba(0,0,0,.65); border: none;
+  cursor: pointer; font-size: .9rem; display: flex; align-items: center;
+  justify-content: center; z-index: 2; transition: all .2s;
+}
+.hrt:hover { transform: scale(1.12); }
+.hrt.on { color: var(--pink); }
+
+.rating-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.7));
+  padding: .8rem .4rem .25rem;
+  display: flex; align-items: center; gap: .2rem;
+}
+.star-val { font-size: .62rem; font-weight: 700; color: var(--yellow); }
+
+.ci { padding: .48rem .52rem .55rem; }
+.ct { font-size: .7rem; font-weight: 600; line-height: 1.3; margin-bottom: .18rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cm { font-size: .6rem; color: var(--muted2); display: flex; gap: .3rem; align-items: center; }
+
+/* Skeleton */
+@keyframes sh { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.sk {
+  background: linear-gradient(90deg, var(--card) 25%, var(--cardH) 50%, var(--card) 75%);
+  background-size: 200% 100%; animation: sh 1.5s infinite; border-radius: 3px;
+}
+.sk-card { border-radius: 9px; overflow: hidden; background: var(--card); }
+.sk-c { aspect-ratio: 2/3; } .sk-c.sk { border-radius: 0; }
+.sk-p { padding: .48rem .52rem; }
+.sk-l { height: .58rem; margin-bottom: .28rem; }
+
+/* ══════════════════ FILTERS ══════════════════ */
+.frow {
+  display: flex; gap: .4rem; overflow-x: auto; padding-bottom: .4rem;
+  margin-bottom: .85rem; scrollbar-width: none;
+}
+.frow::-webkit-scrollbar { display: none; }
+.fbtn {
+  flex-shrink: 0; padding: .3rem .82rem; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--muted2); font-size: .73rem; font-weight: 500;
+  cursor: pointer; transition: all .2s; font-family: inherit; white-space: nowrap;
+}
+.fbtn:hover, .fbtn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ══════════════════ DETAIL PAGE ══════════════════ */
+.det-hero {
+  background: var(--bg2); padding: 1.25rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.det-row { display: flex; gap: 1rem; margin-bottom: 1.1rem; }
+.det-cover {
+  width: 115px; min-width: 115px; border-radius: 10px;
+  overflow: hidden; box-shadow: 0 8px 28px rgba(0,0,0,.6); flex-shrink: 0;
+}
+.det-cover img { width: 100%; display: block; }
+.det-title { font-size: clamp(.95rem,3.5vw,1.4rem); font-weight: 800; line-height: 1.2; margin-bottom: .35rem; }
+.det-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin: .45rem 0; }
+.det-tag {
+  padding: .18rem .5rem; background: rgba(99,102,241,.12);
+  border: 1px solid rgba(99,102,241,.2); border-radius: 3px;
+  font-size: .62rem; color: var(--a2);
+}
+.det-desc { color: var(--muted2); font-size: .78rem; line-height: 1.7; margin: .4rem 0; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.det-stats { display: flex; gap: 1.25rem; margin-top: .55rem; }
+.det-stat-val { font-size: .9rem; font-weight: 700; text-transform: capitalize; }
+.det-stat-lbl { font-size: .6rem; color: var(--muted); }
+.det-btns { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; }
+.dbtn {
+  padding: .5rem 1.1rem; border-radius: 8px; font-size: .8rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .2s;
+}
+.dbtn-primary { background: linear-gradient(135deg, var(--accent), #4f46e5); border: none; color: #fff; }
+.dbtn-primary:hover { opacity: .88; }
+.dbtn-ghost { background: var(--card); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; gap: .3rem; }
+.dbtn-ghost:hover, .dbtn-ghost.on { border-color: var(--pink); color: var(--pink); background: rgba(236,72,153,.08); }
+
+/* Chapter list */
+.ch-list { display: flex; flex-direction: column; gap: .3rem; margin-top: .85rem; }
+.ch-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .65rem .9rem; background: var(--card); border-radius: 8px;
+  cursor: pointer; transition: background .2s; border: 1px solid transparent;
+}
+.ch-item:hover { background: var(--cardH); border-color: var(--border); }
+.ch-item.read { opacity: .55; }
+.ch-num { font-weight: 600; font-size: .8rem; }
+.ch-date { font-size: .65rem; color: var(--muted); }
+.read-tag { font-size: .58rem; background: var(--green); color: #fff; padding: 1px 5px; border-radius: 10px; margin-left: .4rem; }
+
+/* ══════════════════ READER ══════════════════ */
+#pg-reader { background: #000; min-height: 100vh; }
+.rbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(0,0,0,.97); border-bottom: 1px solid #1c1c1c;
+  padding: .5rem 1rem; display: flex; align-items: center; gap: .5rem;
+}
+.r-title { font-size: .78rem; font-weight: 600; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rctrls { display: flex; gap: .3rem; }
+.rbtn {
+  padding: .28rem .65rem; background: #1a1a1a; border: 1px solid #2a2a2a;
+  border-radius: 5px; color: var(--text); font-size: .7rem;
+  cursor: pointer; font-family: inherit; transition: all .2s;
+}
+.rbtn:hover { background: var(--accent); border-color: var(--accent); }
+.rpages { max-width: 800px; margin: 0 auto; }
+.rpages img { width: 100%; display: block; }
+.rend { padding: 1.75rem; text-align: center; color: var(--muted2); font-size: .82rem; }
+.rend button {
+  margin: .3rem; padding: .48rem 1.1rem; border: none; border-radius: 7px;
+  color: #fff; font-size: .78rem; font-weight: 600; cursor: pointer;
+  font-family: inherit; background: var(--accent); transition: opacity .2s;
+}
+.rend button:hover { opacity: .85; }
+.rend .back-ch { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+
+/* ══════════════════ AUTH MODAL ══════════════════ */
+.overlay {
+  position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,.8);
+  display: none; align-items: center; justify-content: center; padding: 1rem;
+}
+.overlay.open { display: flex; }
+.mbox {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 18px; width: 100%; max-width: 380px;
+  padding: 1.75rem; position: relative;
+}
+.mclose { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; }
+.mtitle { font-size: 1.25rem; font-weight: 800; text-align: center; margin-bottom: 1.15rem; }
+.mtabs { display: flex; gap: .4rem; background: var(--card); border-radius: 8px; padding: .22rem; margin-bottom: 1.1rem; }
+.mtab {
+  flex: 1; padding: .46rem; background: none; border: none; border-radius: 6px;
+  color: var(--muted); font-size: .8rem; font-weight: 600; cursor: pointer;
+  transition: all .2s; font-family: inherit;
+}
+.mtab.on { background: var(--accent); color: #fff; }
+.ainp {
+  width: 100%; padding: .62rem .88rem; background: var(--card);
+  border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+  font-size: .83rem; margin-bottom: .6rem; outline: none; font-family: inherit;
+  transition: border-color .2s;
+}
+.ainp:focus { border-color: var(--accent); }
+.abtn {
+  width: 100%; padding: .68rem; background: linear-gradient(135deg, var(--accent), #4f46e5);
+  border: none; border-radius: 9px; color: #fff; font-size: .88rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: opacity .2s;
+}
+.abtn:hover { opacity: .88; } .abtn:disabled { opacity: .45; cursor: not-allowed; }
+.amsg { font-size: .75rem; margin-bottom: .45rem; min-height: .9rem; padding: .1rem 0; }
+.amsg.err { color: var(--red); } .amsg.ok { color: var(--green); }
+
+/* ══════════════════ MISC ══════════════════ */
+.back-btn {
+  display: inline-flex; align-items: center; gap: .35rem;
+  color: var(--muted2); cursor: pointer; font-size: .78rem;
+  margin-bottom: 1rem; transition: color .2s;
+}
+.back-btn:hover { color: var(--text); }
+
+.load-more {
+  display: block; margin: 1.25rem auto; padding: .56rem 1.7rem;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: .78rem; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: all .2s;
+}
+.load-more:hover { background: var(--accent); border-color: var(--accent); }
+
+.empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: .82rem; }
+
+.spin {
+  display: inline-block; width: 28px; height: 28px;
+  border: 2.5px solid var(--border); border-top-color: var(--a2);
+  border-radius: 50%; animation: rot .7s linear infinite;
+}
+@keyframes rot { to { transform: rotate(360deg); } }
+.ctr { text-align: center; padding: 2.5rem; }
+
+.toast {
+  position: fixed; bottom: 74px; left: 50%; transform: translateX(-50%);
+  background: var(--card); border: 1px solid var(--border); border-radius: 9px;
+  padding: .48rem 1.1rem; font-size: .78rem; color: var(--text); z-index: 700;
+  opacity: 0; transition: opacity .25s; pointer-events: none; white-space: nowrap;
+  box-shadow: 0 6px 24px rgba(0,0,0,.4);
+}
+.toast.show { opacity: 1; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 1rem; text-align: center; color: var(--muted); font-size: .7rem; margin-top: 1.5rem; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo" onclick="go('home')">KO<em>MI</em>KU</div>
+  <div class="logo" onclick="go('home')">KOMIKU</div>
   <div class="hdr-search">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input id="q" type="text" placeholder="Манга хайх..." onkeydown="onSearch(event)">
   </div>
   <div id="auth-area">
-    <button class="btn-out" onclick="openMod('register')">Бүртгүүлэх</button>
-    <button class="btn-lg" onclick="openMod('login')">Нэвтрэх</button>
+    <button class="btn-reg" onclick="openAuth('register')">Бүртгүүлэх</button>
+    <button class="btn-login" onclick="openAuth('login')">Нэвтрэх</button>
   </div>
 </header>
 
@@ -283,75 +468,67 @@ footer a{color:var(--a2);text-decoration:none}
     <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Нүүр
   </div>
   <div class="bni" id="bn-browse" onclick="go('browse')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Төрөл
-  </div>
-  <div class="bni" id="bn-manhwa" onclick="go('manhwa')">
-    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Манхва
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Бүгд
   </div>
   <div class="bni" id="bn-bookmarks" onclick="go('bookmarks')">
     <svg viewBox="0 0 24 24"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Дуртай
   </div>
 </nav>
 
-<div id="mod-auth" class="moverlay">
-  <div class="mbox">
-    <button class="mclose" onclick="closeMod()">✕</button>
-    <div class="mtitle">Тавтай морилно уу <span style="background:linear-gradient(135deg,#a78bfa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">KOMIKU</span></div>
-    <div class="mtabs">
-      <button class="mtab on" id="t-login" onclick="switchTab('login')">Нэвтрэх</button>
-      <button class="mtab" id="t-reg" onclick="switchTab('register')">Бүртгүүлэх</button>
-    </div>
-    <div id="amsg" class="amsg"></div>
-    <input id="ae" type="email" placeholder="И-мэйл хаяг" class="ainp">
-    <input id="ap" type="password" placeholder="Нууц үг (дор хаяж 6 тэмдэгт)" class="ainp" onkeydown="if(event.key==='Enter')doAuth()">
-    <button id="asub" class="abtn" onclick="doAuth()">Нэвтрэх</button>
-  </div>
-</div>
-
+<!-- ════ HOME ════ -->
 <div id="pg-home" class="pg on">
-  <div class="hero">
-    <h1>Үнэгүй <b>Манга · Манхва</b><br>& Манхуа Унших</h1>
-    <p>Өдөр бүр шинэчлэгдэх мянга мянган бүтээлүүд</p>
-  </div>
-  <div id="sec-foryou" style="display:none">
-    <div class="sec">
-      <div class="sh"><h2 class="st">✨ Танд санал болгох</h2></div>
-      <div class="grid" id="g-foryou"></div>
+  <!-- Hero Banner -->
+  <div class="hero-wrap" id="hero-wrap">
+    <div class="ctr" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+      <div class="spin"></div>
     </div>
   </div>
+  <div class="hero-dots" id="hero-dots"></div>
+
+  <!-- Latest chapters -->
   <div class="sec">
-    <div class="sh">
-      <h2 class="st">🔥 Ид моод болж буй</h2>
-      <span class="sa" onclick="go('browse')">Бүгд →</span>
+    <div class="sec-head">
+      <h2 class="sec-title">🕒 Шинэ бүлгүүд</h2>
     </div>
-    <div class="grid" id="g-pop"></div>
+    <div class="hscroll" id="g-latest-ch"></div>
   </div>
+
+  <!-- Popular -->
   <div class="sec">
-    <div class="sh"><h2 class="st">🕒 Сүүлд шинэчлэгдсэн</h2></div>
-    <div class="grid" id="g-lat"></div>
+    <div class="sec-head">
+      <h2 class="sec-title">🔥 Эрэлттэй манга</h2>
+      <span class="sec-more" onclick="go('browse')">Бүгд →</span>
+    </div>
+    <div class="grid" id="g-popular"></div>
   </div>
+
+  <footer>KOMIKU · Монгол манга платформ</footer>
 </div>
 
+<!-- ════ BROWSE ════ -->
 <div id="pg-browse" class="pg">
   <div class="sec">
     <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem">Бүх бүтээл</h1>
     <div class="frow" id="type-bar">
       <button class="fbtn on" onclick="setType('all',this)">Бүгд</button>
-      <button class="fbtn" onclick="setType('manga',this)">Манга 🇯🇵</button>
       <button class="fbtn" onclick="setType('manhwa',this)">Манхва 🇰🇷</button>
+      <button class="fbtn" onclick="setType('manga',this)">Манга 🇯🇵</button>
       <button class="fbtn" onclick="setType('manhua',this)">Манхуа 🇨🇳</button>
     </div>
-    <div class="frow" id="genre-bar"></div>
-    <div class="grid" id="g-br"></div>
-    <button class="lmore" onclick="loadMore()">Цааш үзэх</button>
+    <div class="grid" id="g-browse"></div>
+    <button class="load-more" onclick="loadMoreBrowse()">Цааш үзэх</button>
   </div>
 </div>
 
-<div id="pg-detail" class="pg"><div id="det-body"></div></div>
+<!-- ════ DETAIL ════ -->
+<div id="pg-detail" class="pg">
+  <div id="det-body"></div>
+</div>
 
+<!-- ════ READER ════ -->
 <div id="pg-reader" class="pg">
   <div class="rbar">
-    <span class="rtit" id="r-tit">Уншиж байна…</span>
+    <span class="r-title" id="r-tit">Уншиж байна…</span>
     <div class="rctrls">
       <button class="rbtn" onclick="chNav(-1)">← Өмнөх</button>
       <button class="rbtn" onclick="go('detail',cManga)">≡ Жагсаалт</button>
@@ -361,108 +538,83 @@ footer a{color:var(--a2);text-decoration:none}
   <div class="rpages" id="r-pages"><div class="ctr"><div class="spin"></div></div></div>
 </div>
 
+<!-- ════ SEARCH ════ -->
 <div id="pg-search" class="pg">
   <div class="sec">
-    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem" id="s-tit">Хайлт</h1>
-    <div class="grid" id="g-srch"></div>
+    <h1 style="font-size:1.1rem;font-weight:800;margin-bottom:.85rem" id="s-title">Хайлт</h1>
+    <div class="grid" id="g-search"></div>
   </div>
 </div>
 
+<!-- ════ BOOKMARKS ════ -->
 <div id="pg-bookmarks" class="pg">
   <div class="sec">
-    <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.85rem">♥ Дуртай манга</h1>
-    <div id="bm-body"><div class="empty">Нэвтэрсний дараа хадгалсан мангануудаа харах боломжтой.</div></div>
+    <h1 style="font-size:1.1rem;font-weight:800;margin-bottom:.85rem">♥ Дуртай манга</h1>
+    <div id="bm-body"><div class="empty">Нэвтэрсний дараа харах боломжтой.</div></div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="auth-modal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeAuth()">✕</button>
+    <div class="mtitle">
+      <span style="background:linear-gradient(135deg,#818cf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent">KOMIKU</span>
+    </div>
+    <div class="mtabs">
+      <button class="mtab on" id="t-login" onclick="switchTab('login')">Нэвтрэх</button>
+      <button class="mtab" id="t-reg" onclick="switchTab('register')">Бүртгүүлэх</button>
+    </div>
+    <div id="amsg" class="amsg"></div>
+    <input id="ae" type="email" placeholder="И-мэйл хаяг" class="ainp">
+    <input id="ap" type="password" placeholder="Нууц үг" class="ainp" onkeydown="if(event.key==='Enter')doAuth()">
+    <button id="asub" class="abtn" onclick="doAuth()">Нэвтрэх</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<footer>KOMIKU — API: <a href="https://mangadex.org" target="_blank">MangaDex</a> &nbsp;·&nbsp; Зөвхөн сургалтын зориулалттай</footer>
 
 <script>
-/* ══════════════════════════════════════════════════
-   ⚙️ SUPABASE ХОЛБОЛТ (Таны хуучин кодын мэдээлэл)
-   ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+⚙️ SUPABASE ХОЛБОЛТ
+══════════════════════════════════════════ */
 const SB_URL = 'https://unalluevfphdpjzxtceq.supabase.co';
 const SB_KEY = 'sb_publishable_UX4T2Ar-deHNsX66wGgvwA_ZjCq2M-n';
 
-/* ── INIT ── */
-const API = 'https://api.mangadex.org';
-let sb = window.supabase.createClient(SB_URL, SB_KEY);
+// ⚠️ ADMIN EMAILS — зөвхөн эдгээр имэйл Admin panel руу орох эрхтэй
+const ADMIN_EMAILS = [
+  'Baynmonh1223@gmail.com',
+  'baynmonh1223@gmail.com'
+];
 
-let user = null, cManga = null, cChapter = null;
-let chapters = [], browseOff = 0, browseType = 'all', browseTag = '';
-let bmSet = new Set(), readChaptersSet = new Set(), mgCache = {};   
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+let user = null;
+let bmSet = new Set();
+let readSet = new Set();
+let mgCache = {};
+let cManga = null, cChapter = null;
+let chapters = [];
+let browseType = 'all', browseOffset = 0;
+let heroSlides = [], heroTimer = null, heroIndex = 0;
 let authMode = 'login';
-let currentChapterLang = 'en';
 
-/* ── UTILS ── */
 const $ = id => document.getElementById(id);
-const esc = s => String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+/* ── TOAST ── */
 function toast(msg, dur=2400) {
   const el=$('toast'); el.textContent=msg; el.classList.add('show');
   clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),dur);
 }
 
-function skels(n,cls='') {
-  return Array(n).fill(`<div class="sk-card ${cls}"><div class="sk-c sk"></div>
-    <div class="sk-p"><div class="sk-l sk" style="width:78%"></div>
-    <div class="sk-l sk" style="width:48%"></div></div></div>`).join('');
+/* ── UTILS ── */
+const esc = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function skels(n) {
+  return Array(n).fill(`<div class="sk-card"><div class="sk-c sk"></div><div class="sk-p"><div class="sk-l sk" style="width:78%"></div><div class="sk-l sk" style="width:50%"></div></div></div>`).join('');
 }
-
-/* ── API FETCH ── */
-async function apiFetch(url) {
-  for (let i=0; i<3; i++) {
-    try {
-      const ctrl=new AbortController(), tid=setTimeout(()=>ctrl.abort(),12000);
-      const r = await fetch(url,{signal:ctrl.signal});
-      clearTimeout(tid);
-      if (r.status===429) { await sleep(2800); continue; }
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return await r.json();
-    } catch(e) { if(i===2) throw e; await sleep(1600); }
-  }
-}
-
-/* ── MANGA HELPERS ── */
-function coverOf(m) {
-  const r=m.relationships?.find(r=>r.type==='cover_art');
-  return r?.attributes?.fileName
-    ? `https://uploads.mangadex.org/covers/${m.id}/${r.attributes.fileName}.256.jpg`
-    : '';
-}
-function typeOf(m) {
-  const l=m.attributes?.originalLanguage;
-  if(l==='ko') return {lb:'Манхва',cls:'manhwa'};
-  if(l==='zh'||l==='zh-hk') return {lb:'Манхуа',cls:'manhua'};
+function typeLabel(t) {
+  if(t==='manhwa') return {lb:'Манхва',cls:'manhwa'};
+  if(t==='manhua') return {lb:'Манхуа',cls:'manhua'};
   return {lb:'Манга',cls:'manga'};
-}
-function titOf(m) {
-  return m.attributes?.title?.en||Object.values(m.attributes?.title||{})[0]||'Нэргүй';
-}
-const PH = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='2' height='3'><rect width='2' height='3' fill='%23141420'/></svg>`;
-
-function cardHtml(m) {
-  const tp=typeOf(m), tit=titOf(m), img=coverOf(m);
-  const rat=m.attributes?.rating?.average?(m.attributes.rating.average/2).toFixed(1):'';
-  const on=bmSet.has(m.id)?'on':'';
-  mgCache[m.id]={
-    title:tit,cover:img,type:tp.lb.toLowerCase(),
-    genres:(m.attributes?.tags||[]).filter(t=>t.attributes?.group==='genre').map(t=>t.attributes?.name?.en||'')
-  };
-  return `<div class="card" onclick="go('detail','${m.id}')">
-    <div class="cover">
-      <img src="${img||PH}" alt="${esc(tit)}" loading="lazy" onerror="this.src='${PH}'">
-      <span class="badge ${tp.cls}">${tp.lb}</span>
-      <button class="hrt ${on}" onclick="toggleBm(event,'${m.id}')">
-        ${bmSet.has(m.id)?'♥':'♡'}</button>
-    </div>
-    <div class="ci">
-      <div class="ct">${esc(tit)}</div>
-      <div class="cm">${rat?`<span class="star">★${rat}</span>`:''}<span style="text-transform:capitalize">${m.attributes?.status||''}</span></div>
-    </div>
-  </div>`;
 }
 
 /* ── NAVIGATION ── */
@@ -472,171 +624,192 @@ function go(page, id) {
   $(`bn-${page}`)?.classList.add('on');
   window.scrollTo(0,0);
 
-  if (page==='home') {
+  if(page==='home') {
     $('pg-home').classList.add('on');
-    if (!$('g-pop').children.length) loadHome();
-  } else if (['browse','manga','manhwa','manhua'].includes(page)) {
+    if(!$('g-popular').children.length) loadHome();
+  } else if(page==='browse') {
     $('pg-browse').classList.add('on');
     $('bn-browse')?.classList.add('on');
-    browseOff=0; browseType=page==='browse'?'all':page;
-    $('g-br').innerHTML=skels(18);
-    document.querySelectorAll('#type-bar .fbtn').forEach(b=>b.classList.remove('on'));
-    [...$('type-bar').querySelectorAll('.fbtn')].find(b=>
-      b.getAttribute('onclick').includes(`'${browseType}'`))?.classList.add('on');
+    browseOffset=0;
+    $('g-browse').innerHTML=skels(18);
     loadBrowse(true);
-  } else if (page==='detail'&&id) {
-    cManga=id; currentChapterLang='en'; $('pg-detail').classList.add('on'); loadDetail(id);
-  } else if (page==='reader'&&id) {
+  } else if(page==='detail'&&id) {
+    cManga=id; $('pg-detail').classList.add('on');
+    loadDetail(id);
+  } else if(page==='reader'&&id) {
     $('pg-reader').classList.add('on'); loadReader(id);
-  } else if (page==='search') {
+  } else if(page==='search') {
     $('pg-search').classList.add('on');
-  } else if (page==='bookmarks') {
+  } else if(page==='bookmarks') {
     $('pg-bookmarks').classList.add('on');
     $('bn-bookmarks')?.classList.add('on');
-    loadBmPage();
+    loadBookmarks();
   }
 }
 
-/* ── HOME ── */
+/* ══ HOME ══ */
 async function loadHome() {
-  $('g-pop').innerHTML=skels(12);
-  $('g-lat').innerHTML=skels(12);
-  const base=`${API}/manga?includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`;
-  try {
-    const [pop,lat]=await Promise.all([
-      apiFetch(`${base}&limit=12&order[followedCount]=desc`),
-      apiFetch(`${base}&limit=12&order[updatedAt]=desc`)
-    ]);
-    $('g-pop').innerHTML=(pop.data||[]).map(cardHtml).join('')||'<div class="empty">Мэдээлэл олдсонгүй.</div>';
-    $('g-lat').innerHTML=(lat.data||[]).map(cardHtml).join('')||'<div class="empty">Мэдээлэл олдсонгүй.</div>';
-  } catch {
-    $('g-pop').innerHTML='<div class="empty">⚠️ Ачаалах боломжгүй байна. Дахин оролдоно уу.</div>';
-    $('g-lat').innerHTML='';
-  }
-  // if (user) loadRecs(); // Skipping recs for now to ensure stable DB logic matching old code
+  // Fetch manga from Supabase
+  const [{ data: mangas }, { data: latestChs }] = await Promise.all([
+    sb.from('mangas').select('*').order('created_at',{ascending:false}).limit(12),
+    sb.from('chapters')
+      .select('*, mangas(title, cover_url, type)')
+      .order('created_at',{ascending:false}).limit(20)
+  ]);
+
+  // Hero banner
+  buildHero(mangas || []);
+
+  // Latest chapters
+  const chHtml = (latestChs||[]).filter(c=>c.mangas).map(c=>`
+    <div class="ch-card" onclick="go('detail','${c.manga_id}')">
+      <div class="ch-cover">
+        <img src="${c.mangas.cover_url||''}" alt="" loading="lazy">
+        <span class="ch-new">Шинэ</span>
+      </div>
+      <div class="ch-info">
+        <div class="ch-title">${esc(c.mangas.title)}</div>
+        <div class="ch-num">Бүлэг ${c.chapter_number}</div>
+      </div>
+    </div>
+  `).join('');
+  $('g-latest-ch').innerHTML = chHtml || '<div class="empty">Бүлэг байхгүй байна</div>';
+
+  // Popular
+  const popHtml = (mangas||[]).map(cardHtml).join('');
+  $('g-popular').innerHTML = popHtml || '<div class="empty">Манга байхгүй байна</div>';
+}
+
+/* ── HERO ── */
+function buildHero(mangas) {
+  const wrap = $('hero-wrap');
+  const dots = $('hero-dots');
+  heroSlides = mangas.slice(0,5);
+  if(!heroSlides.length) { wrap.innerHTML=''; return; }
+
+  wrap.innerHTML = heroSlides.map((m,i)=>{
+    const tp = typeLabel(m.type);
+    return `<div class="hero-slide ${i===0?'on':''}" id="hs-${i}">
+      <div class="hero-bg" style="background-image:url('${m.cover_url||''}')"></div>
+      <div class="hero-grad"></div>
+      <div class="hero-content">
+        <span class="hero-badge">${tp.lb}</span>
+        <h1 class="hero-title">${esc(m.title)}</h1>
+        <div class="hero-meta">
+          <span>📖 ${m.status==='completed'?'Дууссан':'Үргэлжилж буй'}</span>
+        </div>
+        <div class="hero-btns">
+          <button class="h-btn h-btn-primary" onclick="go('detail','${m.id}')">▶ Унших</button>
+          <button class="h-btn h-btn-ghost" onclick="go('detail','${m.id}')">ℹ Дэлгэрэнгүй</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  dots.innerHTML = heroSlides.map((_,i)=>`<div class="hero-dot ${i===0?'on':''}" onclick="setHero(${i})"></div>`).join('');
+
+  clearInterval(heroTimer);
+  heroIndex = 0;
+  heroTimer = setInterval(()=>setHero((heroIndex+1)%heroSlides.length), 4000);
+}
+
+function setHero(i) {
+  heroIndex = i;
+  document.querySelectorAll('.hero-slide').forEach((s,j)=>s.classList.toggle('on',j===i));
+  document.querySelectorAll('.hero-dot').forEach((d,j)=>d.classList.toggle('on',j===i));
+}
+
+/* ── CARD HTML ── */
+function cardHtml(m) {
+  const tp = typeLabel(m.type||'manga');
+  mgCache[m.id] = {title:m.title,cover:m.cover_url,type:m.type};
+  const bm = bmSet.has(m.id)?'on':'';
+  return `<div class="card" onclick="go('detail','${m.id}')">
+    <div class="cover">
+      <img src="${m.cover_url||''}" alt="${esc(m.title)}" loading="lazy">
+      <span class="type-badge type-${tp.cls}">${tp.lb}</span>
+      <button class="hrt ${bm}" onclick="toggleBm(event,'${m.id}')">
+        ${bmSet.has(m.id)?'♥':'♡'}
+      </button>
+    </div>
+    <div class="ci">
+      <div class="ct">${esc(m.title)}</div>
+      <div class="cm"><span style="text-transform:capitalize">${m.status==='completed'?'Дууссан':'Үргэлжилж буй'}</span></div>
+    </div>
+  </div>`;
 }
 
 /* ── BROWSE ── */
 async function loadBrowse(reset) {
-  if (reset) { browseOff=0; $('g-br').innerHTML=skels(18); }
-  let url=`${API}/manga?limit=18&offset=${browseOff}&includes[]=cover_art&order[followedCount]=desc&contentRating[]=safe&contentRating[]=suggestive`;
-  if (browseType==='manhwa') url+='&originalLanguage[]=ko';
-  else if (browseType==='manhua') url+='&originalLanguage[]=zh&originalLanguage[]=zh-hk';
-  else if (browseType==='manga') url+='&originalLanguage[]=ja';
-  if (browseTag) url+=`&includedTags[]=${browseTag}`;
-  try {
-    const d=await apiFetch(url);
-    const html=(d.data||[]).map(cardHtml).join('');
-    if (reset) $('g-br').innerHTML=html||'<div class="empty">Илэрц олдсонгүй.</div>';
-    else $('g-br').innerHTML+=html;
-    browseOff+=18;
-  } catch { if(reset) $('g-br').innerHTML='<div class="empty">Алдаа гарлаа.</div>'; }
+  if(reset) { browseOffset=0; $('g-browse').innerHTML=skels(18); }
+  let q = sb.from('mangas').select('*').order('created_at',{ascending:false}).range(browseOffset, browseOffset+17);
+  if(browseType!=='all') q = q.eq('type', browseType);
+  const {data} = await q;
+  const html = (data||[]).map(cardHtml).join('');
+  if(reset) $('g-browse').innerHTML = html || '<div class="empty">Манга байхгүй байна</div>';
+  else $('g-browse').innerHTML += html;
+  browseOffset += 18;
 }
 
-function setType(t,btn) {
+function setType(t, btn) {
   document.querySelectorAll('#type-bar .fbtn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on'); browseType=t; loadBrowse(true);
 }
-function setGenre(id,btn) {
-  document.querySelectorAll('#genre-bar .fbtn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on'); browseTag=id; loadBrowse(true);
-}
-function loadMore() { loadBrowse(false); }
 
-apiFetch(`${API}/manga/tag`).then(d=>{
-  const gs=(d.data||[]).filter(t=>t.attributes?.group==='genre').slice(0,16);
-  $('genre-bar').innerHTML=`<button class="fbtn on" onclick="setGenre('',this)">Бүгд</button>`+
-    gs.map(g=>`<button class="fbtn" onclick="setGenre('${g.id}',this)">${g.attributes?.name?.en||''}</button>`).join('');
-}).catch(()=>{});
+function loadMoreBrowse() { loadBrowse(false); }
 
 /* ── DETAIL ── */
 async function loadDetail(id) {
   $('det-body').innerHTML='<div class="ctr"><div class="spin"></div></div>';
-  try {
-    const mRes=await apiFetch(`${API}/manga/${id}?includes[]=cover_art&includes[]=author`);
-    const m=mRes.data;
-    const tp=typeOf(m), tit=titOf(m);
-    const desc=m.attributes?.description?.en||'Тайлбар олдсонгүй.';
-    const allTags=m.attributes?.tags||[];
-    const tagHtml=allTags.slice(0,12).map(t=>`<span class="tag">${esc(t.attributes?.name?.en||'')}</span>`).join('');
-    const author=m.relationships?.find(r=>r.type==='author')?.attributes?.name||'';
-    const img=coverOf(m);
-    const bmOn=bmSet.has(id)?'on':'';
+  const {data:m} = await sb.from('mangas').select('*').eq('id',id).single();
+  if(!m) { $('det-body').innerHTML='<div class="empty">Манга олдсонгүй</div>'; return; }
 
-    mgCache[id]={title:tit,cover:img,type:tp.lb.toLowerCase()};
+  const tp = typeLabel(m.type||'manga');
+  const bm = bmSet.has(id)?'on':'';
+  mgCache[id] = {title:m.title,cover:m.cover_url,type:m.type};
 
-    $('det-body').innerHTML=`
-      <div class="dh">
-        <div class="bk" onclick="go('browse')">← Буцах</div>
-        <div class="dw">
-          <div class="dc"><img src="${img||PH}" alt="${esc(tit)}" onerror="this.src='${PH}'"></div>
-          <div>
-            <span class="badge ${tp.cls}" style="position:static;display:inline-block;margin-bottom:.35rem">${tp.lb}</span>
-            <h1 class="dtit">${esc(tit)}</h1>
-            ${author?`<div style="color:var(--muted);font-size:.74rem;margin:.15rem 0">Зохиогч: ${esc(author)}</div>`:''}
-            <div class="tags">${tagHtml}</div>
-            <p class="ddesc">${esc(desc)}</p>
-            <div class="stats">
-              <div><div class="sv">${m.attributes?.status||'—'}</div><div class="sl">Төлөв</div></div>
-              ${m.attributes?.year?`<div><div class="sv">${m.attributes.year}</div><div class="sl">Он</div></div>`:''}
-            </div>
-            <div class="dact">
-              <button class="bbm ${bmOn}" id="det-bm" onclick="toggleBm(null,'${id}')">
-                ${bmSet.has(id)?'♥ Хадгалсан':'♡ Хадгалах'}</button>
-            </div>
+  $('det-body').innerHTML=`
+    <div class="det-hero">
+      <span class="back-btn" onclick="go('browse')">← Буцах</span>
+      <div class="det-row">
+        <div class="det-cover"><img src="${m.cover_url||''}" alt="${esc(m.title)}"></div>
+        <div>
+          <span class="type-badge type-${tp.cls}" style="position:static;display:inline-block;margin-bottom:.35rem">${tp.lb}</span>
+          <h1 class="det-title">${esc(m.title)}</h1>
+          <p class="det-desc">${esc(m.description||'Тайлбар байхгүй байна.')}</p>
+          <div class="det-stats">
+            <div><div class="det-stat-val">${m.status==='completed'?'Дууссан':'Үргэлжилж буй'}</div><div class="det-stat-lbl">Төлөв</div></div>
+            ${m.year?`<div><div class="det-stat-val">${m.year}</div><div class="det-stat-lbl">Он</div></div>`:''}
+          </div>
+          <div class="det-btns">
+            <button class="dbtn dbtn-ghost ${bm}" id="det-bm" onclick="toggleBm(null,'${id}')">
+              ${bmSet.has(id)?'♥ Хадгалсан':'♡ Хадгалах'}
+            </button>
           </div>
         </div>
       </div>
-      <div class="sec">
-        <h2 class="st" style="margin-bottom:.7rem">Бүлгүүд</h2>
-        
-        <div class="frow" id="lang-bar" style="margin-bottom:1rem;">
-          <button class="fbtn on" onclick="changeChapLang('en', this)">🇬🇧 Англи</button>
-          <button class="fbtn" onclick="changeChapLang('mn', this)">🇲🇳 Монгол</button>
-          <button class="fbtn" onclick="changeChapLang('ko', this)">🇰🇷 Солонгос</button>
-          <button class="fbtn" onclick="changeChapLang('zh', this)">🇨🇳 Хятад</button>
-        </div>
-
-        <div class="chl" id="det-ch-list"><div class="loading" style="color:var(--muted);font-size:.8rem;">Бүлгүүдийг ачааллаж байна...</div></div>
-      </div>`;
-      
-      loadChapters(id);
-  } catch { $('det-body').innerHTML='<div class="empty">Мэдээлэл ачааллахад алдаа гарлаа.</div>'; }
-}
-
-function changeChapLang(lang, btn) {
-    currentChapterLang = lang;
-    document.querySelectorAll('#lang-bar .fbtn').forEach(b=>b.classList.remove('on'));
-    btn.classList.add('on');
-    loadChapters(cManga);
+    </div>
+    <div class="sec">
+      <h2 class="sec-title" style="margin-bottom:.75rem">Бүлгүүд</h2>
+      <div class="ch-list" id="det-ch-list"><div class="ctr"><div class="spin"></div></div></div>
+    </div>
+  `;
+  loadChapters(id);
 }
 
 async function loadChapters(mangaId) {
-    const listDiv = $('det-ch-list');
-    listDiv.innerHTML = '<div class="ctr"><div class="spin"></div></div>';
-    try {
-        const cRes = await apiFetch(`${API}/manga/${mangaId}/feed?limit=100&translatedLanguage[]=${currentChapterLang}&order[chapter]=desc&contentRating[]=safe&contentRating[]=suggestive`);
-        chapters = cRes.data || [];
-        
-        if(chapters.length === 0) {
-            listDiv.innerHTML = '<div class="empty">⚠️ Энэ хэл дээр бүлэг олдсонгүй</div>';
-            return;
-        }
-
-        const tit = mgCache[mangaId]?.title || 'Бүлэг';
-        listDiv.innerHTML = chapters.map(ch=>{
-            const num=ch.attributes?.chapter||'?';
-            const ct=ch.attributes?.title?` — ${ch.attributes.title}`:'';
-            const dt=ch.attributes?.publishAt?new Date(ch.attributes.publishAt).toLocaleDateString():'';
-            const isRead = readChaptersSet.has(ch.id);
-            return `<div class="chi ${isRead?'read':''}" onclick="openReader('${ch.id}','Chapter ${num}','${mangaId}')">
-                <span class="chn">Бүлэг ${num}${esc(ct)} ${isRead ? '<span class="read-badge">✓ Уншсан</span>' : ''}</span>
-                <span class="chd">${dt}</span>
-            </div>`;
-        }).join('');
-    } catch {
-        listDiv.innerHTML = '<div class="empty">Бүлгүүд ачаалах үед алдаа гарлаа.</div>';
-    }
+  const {data} = await sb.from('chapters')
+    .select('*').eq('manga_id',mangaId).order('chapter_number');
+  chapters = data||[];
+  $('det-ch-list').innerHTML = chapters.map(c=>{
+    const isRead = readSet.has(c.id);
+    return `<div class="ch-item ${isRead?'read':''}" onclick="openReader('${c.id}','Бүлэг ${c.chapter_number}','${mangaId}')">
+      <span class="ch-num">Бүлэг ${c.chapter_number}${c.title?` — ${esc(c.title)}`:''}
+        ${isRead?'<span class="read-tag">✓</span>':''}
+      </span>
+      <span class="ch-date">${new Date(c.created_at).toLocaleDateString('mn-MN')}</span>
+    </div>`;
+  }).join('') || '<div class="empty">Бүлэг байхгүй байна</div>';
 }
 
 /* ── READER ── */
@@ -645,131 +818,104 @@ function openReader(chId, label, mangaId) {
   $('r-tit').textContent=label;
   go('reader', chId);
   loadReader(chId);
-  if (user&&sb&&mangaId) saveHistory(mangaId, chId);
+  if(user&&mangaId) saveRead(mangaId, chId);
 }
 
 async function loadReader(chId) {
   cChapter=chId;
   $('r-pages').innerHTML='<div class="ctr"><div class="spin"></div></div>';
-  try {
-    const d=await apiFetch(`${API}/at-home/server/${chId}`);
-    const base=d.baseUrl, hash=d.chapter?.hash, pages=d.chapter?.data||[];
-    if (!pages.length) {
-      $('r-pages').innerHTML='<div class="empty" style="color:#999">Зураг олдсонгүй.<br><small>Өөр бүлэг эсвэл хэл сонгоно уу.</small></div>';
-      return;
-    }
-    const idx=chapters.findIndex(c=>c.id===chId);
-    const num=chapters[idx]?.attributes?.chapter||'?';
-    const hasPrev=idx<chapters.length-1, hasNext=idx>0;
-    $('r-pages').innerHTML=
-      pages.map((p,i)=>`<img src="${base}/data/${hash}/${p}" alt="Хуудас ${i+1}" loading="${i<3?'eager':'lazy'}">`).join('')+
-      `<div class="rend"><p style="margin-bottom:.65rem">— Бүлэг ${num} төгсөв —</p>
-      ${hasPrev?`<button onclick="chNav(-1);window.scrollTo(0,0)">← Өмнөх Бүлэг</button>`:''}
-      ${hasNext?`<button onclick="chNav(1);window.scrollTo(0,0)">Дараах Бүлэг →</button>`:''}
-      <button class="back-ch" onclick="go('detail',cManga)">Жагсаалт руу буцах</button></div>`;
-  } catch {
-    $('r-pages').innerHTML='<div class="empty" style="color:#999">Хуудсууд ачаалласангүй.<br><small>Сервер ачаалалтай байж магадгүй.</small></div>';
+  const {data:pages} = await sb.from('chapter_pages')
+    .select('*').eq('chapter_id',chId).order('page_number');
+  if(!pages?.length) {
+    $('r-pages').innerHTML='<div class="empty">Зураг олдсонгүй</div>'; return;
   }
+  const idx = chapters.findIndex(c=>c.id===chId);
+  const num = chapters[idx]?.chapter_number||'?';
+  $('r-pages').innerHTML=
+    pages.map((p,i)=>`<img src="${p.image_url}" alt="Хуудас ${i+1}" loading="${i<3?'eager':'lazy'}">`).join('')+
+    `<div class="rend"><p style="margin-bottom:.65rem">— Бүлэг ${num} төгсөв —</p>
+      ${idx>0?`<button onclick="chNav(-1);scrollTo(0,0)">← Өмнөх</button>`:''}
+      ${idx<chapters.length-1?`<button onclick="chNav(1);scrollTo(0,0)">Дараах →</button>`:''}
+      <button class="back-ch" onclick="go('detail',cManga)">Жагсаалт</button>
+    </div>`;
 }
 
 function chNav(dir) {
-  const idx=chapters.findIndex(c=>c.id===cChapter);
-  const next=idx-dir;
-  if (next>=0&&next<chapters.length) {
-    const ch=chapters[next], num=ch.attributes?.chapter||'?';
-    openReader(ch.id,`Бүлэг ${num}`,cManga);
+  const idx = chapters.findIndex(c=>c.id===cChapter);
+  const next = idx+dir;
+  if(next>=0&&next<chapters.length) {
+    const c=chapters[next];
+    openReader(c.id,`Бүлэг ${c.chapter_number}`,cManga);
   } else {
-    toast(dir===1?'Сүүлийн бүлэг байна.':'Эхний бүлэг байна.');
+    toast(dir===1?'Сүүлийн бүлэг':'Эхний бүлэг');
   }
 }
 
-/* ── УНШСАН ТҮҮХ ХАДГАЛАХ (Хуучин Database бүтэцтэй ижил) ── */
-async function saveHistory(mangaId, chapterId) {
-  if (!user) return;
-  if (!readChaptersSet.has(chapterId)) {
-      readChaptersSet.add(chapterId);
-      if (sb) {
-          try {
-             // Хуучин кодын table name "read_chapters" -тэй нийцүүлсэн
-             await sb.from('read_chapters').insert({ user_id: user.id, chapter_id: chapterId, manga_id: mangaId });
-          } catch(e) {}
-      }
+async function saveRead(mangaId, chId) {
+  if(!readSet.has(chId)) {
+    readSet.add(chId);
+    await sb.from('read_chapters').insert({user_id:user.id, chapter_id:chId, manga_id:mangaId});
   }
 }
 
-/* ── BOOKMARKS / ДУРТАЙ (Хуучин Database бүтэцтэй ижил) ── */
+/* ── BOOKMARKS ── */
 async function toggleBm(e, mangaId) {
   if(e){e.stopPropagation();e.preventDefault();}
-  if (!user) { openMod('login'); toast('Хадгалахын тулд нэвтэрнэ үү'); return; }
-  const meta=mgCache[mangaId]||{};
+  if(!user){openAuth('login');toast('Нэвтэрч орно уу');return;}
   const adding=!bmSet.has(mangaId);
-  
-  if (adding) {
+  const meta=mgCache[mangaId]||{};
+  if(adding) {
     bmSet.add(mangaId);
-    if(sb) {
-        // Хуучин кодын table name "favorites" -тэй нийцүүлсэн
-        await sb.from('favorites').upsert({
-            user_id: user.id, 
-            manga_id: mangaId,
-            manga_title: meta.title||'',
-            cover_url: meta.cover||''
-        }, {onConflict: 'user_id,manga_id'});
-    }
+    await sb.from('favorites').upsert({user_id:user.id,manga_id:mangaId,manga_title:meta.title||'',cover_url:meta.cover||''},{onConflict:'user_id,manga_id'});
     toast('♥ Хадгалагдлаа!');
   } else {
     bmSet.delete(mangaId);
-    if(sb) await sb.from('favorites').delete().match({user_id:user.id,manga_id:mangaId});
+    await sb.from('favorites').delete().match({user_id:user.id,manga_id:mangaId});
     toast('Жагсаалтаас хасав.');
   }
-  
   document.querySelectorAll('.hrt').forEach(btn=>{
     if((btn.getAttribute('onclick')||'').includes(`'${mangaId}'`)) {
-      btn.textContent=adding?'♥':'♡';
-      btn.classList.toggle('on',adding);
+      btn.textContent=adding?'♥':'♡'; btn.classList.toggle('on',adding);
     }
   });
   const db=$('det-bm');
   if(db&&cManga===mangaId){db.textContent=adding?'♥ Хадгалсан':'♡ Хадгалах';db.classList.toggle('on',adding);}
 }
 
-async function loadBmPage() {
+async function loadBookmarks() {
   const body=$('bm-body');
-  if (!user){body.innerHTML='<div class="empty">Нэвтэрч орж дуртай мангаа харна уу.</div>';return;}
+  if(!user){body.innerHTML='<div class="empty">Нэвтэрч орно уу</div>';return;}
   body.innerHTML='<div class="ctr"><div class="spin"></div></div>';
-  try {
-    const {data}=await sb.from('favorites').select('*').eq('user_id',user.id);
-    if (!data?.length){body.innerHTML='<div class="empty">Дуртай манга алга байна.<br>Манганы ♡ товчийг дарж хадгална уу.</div>';return;}
-    body.innerHTML=`<div class="grid">${data.map(b=>`
-      <div class="card" onclick="go('detail','${b.manga_id}')">
-        <div class="cover">
-          <img src="${b.cover_url||PH}" alt="${esc(b.manga_title)}" loading="lazy" onerror="this.src='${PH}'">
-          <span class="badge manga">Хадгалсан</span>
-          <button class="hrt on" onclick="toggleBm(event,'${b.manga_id}')">♥</button>
-        </div>
-        <div class="ci"><div class="ct">${esc(b.manga_title)}</div></div>
-      </div>`).join('')}</div>`;
-  } catch{body.innerHTML='<div class="empty">Ачааллахад алдаа гарлаа.</div>';}
+  const {data}=await sb.from('favorites').select('*').eq('user_id',user.id);
+  if(!data?.length){body.innerHTML='<div class="empty">Дуртай манга байхгүй байна</div>';return;}
+  body.innerHTML=`<div class="sec"><div class="grid">${data.map(b=>`
+    <div class="card" onclick="go('detail','${b.manga_id}')">
+      <div class="cover">
+        <img src="${b.cover_url||''}" alt="${esc(b.manga_title)}" loading="lazy">
+        <button class="hrt on" onclick="toggleBm(event,'${b.manga_id}')">♥</button>
+      </div>
+      <div class="ci"><div class="ct">${esc(b.manga_title)}</div></div>
+    </div>`).join('')}</div></div>`;
 }
 
 /* ── SEARCH ── */
 function onSearch(e) {
   if(e.key!=='Enter') return;
   const q=$('q').value.trim(); if(!q) return;
-  go('search'); $('s-tit').textContent=`"${q}" хайлтын илэрц`;
-  $('g-srch').innerHTML=skels(12);
-  apiFetch(`${API}/manga?title=${encodeURIComponent(q)}&limit=20&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`)
-    .then(d=>{ $('g-srch').innerHTML=(d.data||[]).map(cardHtml).join('')||'<div class="empty">Илэрц олдсонгүй.</div>'; })
-    .catch(()=>{ $('g-srch').innerHTML='<div class="empty">Хайлт амжилтгүй боллоо.</div>'; });
+  go('search'); $('s-title').textContent=`"${q}" хайлтын илэрц`;
+  $('g-search').innerHTML=skels(12);
+  sb.from('mangas').select('*').ilike('title',`%${q}%`).limit(20)
+    .then(({data})=>{$('g-search').innerHTML=(data||[]).map(cardHtml).join('')||'<div class="empty">Илэрц олдсонгүй</div>';});
 }
 
 /* ── AUTH ── */
-function openMod(mode='login') {
+function openAuth(mode='login') {
   authMode=mode; switchTab(mode);
-  $('mod-auth').classList.add('open');
+  $('auth-modal').classList.add('open');
   setTimeout(()=>$('ae').focus(),100);
 }
-function closeMod() { $('mod-auth').classList.remove('open'); $('amsg').textContent=''; }
-$('mod-auth').addEventListener('click', e=>{ if(e.target===$('mod-auth')) closeMod(); });
+function closeAuth() { $('auth-modal').classList.remove('open'); $('amsg').textContent=''; }
+$('auth-modal').addEventListener('click',e=>{if(e.target===$('auth-modal'))closeAuth();});
 
 function switchTab(mode) {
   authMode=mode;
@@ -782,87 +928,85 @@ function switchTab(mode) {
 async function doAuth() {
   const email=$('ae').value.trim(), pass=$('ap').value;
   const btn=$('asub');
-  if (!email||!pass){ setMsg('Бүх талбарыг бөглөнө үү.','err'); return; }
-  if (pass.length<6){ setMsg('Нууц үг 6-аас дээш тэмдэгт байна.','err'); return; }
-
-  btn.disabled=true; btn.textContent='Түр хүлээнэ үү…'; $('amsg').textContent='';
+  if(!email||!pass){setMsg('Бүх талбарыг бөглөнө үү.','err');return;}
+  if(pass.length<6){setMsg('Нууц үг 6-аас дээш тэмдэгт','err');return;}
+  btn.disabled=true; btn.textContent='Түр хүлээнэ үү…';
   try {
-    let data, error;
-    if (authMode==='login') {
-      ({data,error}=await sb.auth.signInWithPassword({email, password:pass}));
-    } else {
-      ({data,error}=await sb.auth.signUp({email, password:pass}));
-    }
-    if (error) throw error;
+    let data,error;
+    if(authMode==='login') ({data,error}=await sb.auth.signInWithPassword({email,password:pass}));
+    else ({data,error}=await sb.auth.signUp({email,password:pass}));
+    if(error) throw error;
     user=data.user||data.session?.user;
-    if (user) {
-      if (authMode==='register') setMsg('✓ Бүртгэл амжилттай!','ok');
-      else { closeMod(); toast(`Тавтай морил, ${user.email.split('@')[0]}!`); }
+    if(user){
+      if(authMode==='register') setMsg('✓ Бүртгэл амжилттай!','ok');
+      else { closeAuth(); toast(`Тавтай морил, ${user.email.split('@')[0]}!`); }
       await loadUserData(); updateAuthUI();
     }
-  } catch(err) {
-    setMsg(err.message||'Алдаа гарлаа.','err');
-  }
+  } catch(err) { setMsg(err.message||'Алдаа гарлаа.','err'); }
   btn.disabled=false; btn.textContent=authMode==='login'?'Нэвтрэх':'Бүртгүүлэх';
 }
 
-function setMsg(msg,cls) {
-  const el=$('amsg'); el.textContent=msg; el.className=`amsg ${cls}`;
-}
+function setMsg(msg,cls) { const el=$('amsg'); el.textContent=msg; el.className=`amsg ${cls}`; }
 
 async function doLogout() {
-  if(sb) await sb.auth.signOut();
-  user=null; bmSet.clear(); readChaptersSet.clear(); updateAuthUI();
+  await sb.auth.signOut();
+  user=null; bmSet.clear(); readSet.clear(); updateAuthUI();
   toast('Амжилттай гарлаа.');
-  if ($('pg-bookmarks').classList.contains('on')) go('home');
+  if($('pg-bookmarks').classList.contains('on')) go('home');
 }
 
 async function loadUserData() {
-  if(!sb||!user) return;
-  try {
-    // 1. Дуртай манга татах (favorites)
-    const {data: favs} = await sb.from('favorites').select('manga_id').eq('user_id',user.id);
-    bmSet=new Set((favs||[]).map(b=>b.manga_id));
-    
-    // 2. Уншсан бүлгүүд татах (read_chapters)
-    const {data: reads} = await sb.from('read_chapters').select('chapter_id').eq('user_id',user.id);
-    readChaptersSet=new Set((reads||[]).map(r=>r.chapter_id));
-  } catch {}
+  if(!user) return;
+  const [{data:favs},{data:reads}] = await Promise.all([
+    sb.from('favorites').select('manga_id').eq('user_id',user.id),
+    sb.from('read_chapters').select('chapter_id').eq('user_id',user.id)
+  ]);
+  bmSet = new Set((favs||[]).map(b=>b.manga_id));
+  readSet = new Set((reads||[]).map(r=>r.chapter_id));
+}
+
+function isAdmin(email) {
+  return ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((email||'').toLowerCase());
 }
 
 function updateAuthUI() {
   const area=$('auth-area');
-  if (user) {
+  if(user) {
     const init=(user.email||'U')[0].toUpperCase();
+    const adminLink = isAdmin(user.email)
+      ? `<a class="avm-admin" onclick="window.location.href='admin.html'">⚙️ Admin Panel</a>`
+      : '';
     area.innerHTML=`<div class="avm-wrap">
       <div class="avatar" onclick="this.nextElementSibling.classList.toggle('open');event.stopPropagation()">${init}</div>
-      <div class="avm" id="uavm">
+      <div class="avm">
         <div class="avm-email">${user.email}</div>
         <a onclick="go('bookmarks')">♥ Дуртай</a>
-        <a class="logout" onclick="doLogout()">→ Гарах</a>
+        ${adminLink}
+        <a class="avm-logout" onclick="doLogout()">→ Гарах</a>
       </div>
     </div>`;
   } else {
-    area.innerHTML=`<button class="btn-out" onclick="openMod('register')">Бүртгүүлэх</button>
-      <button class="btn-lg" onclick="openMod('login')">Нэвтрэх</button>`;
+    area.innerHTML=`<button class="btn-reg" onclick="openAuth('register')">Бүртгүүлэх</button>
+      <button class="btn-login" onclick="openAuth('login')">Нэвтрэх</button>`;
   }
 }
+
 document.addEventListener('click',()=>document.querySelectorAll('.avm').forEach(m=>m.classList.remove('open')));
 
 /* ── STARTUP ── */
-async function initApp() {
+async function init() {
   try {
     const {data:{session}}=await sb.auth.getSession();
-    if (session?.user) { user=session.user; await loadUserData(); updateAuthUI(); }
+    if(session?.user){user=session.user;await loadUserData();updateAuthUI();}
   } catch {}
   loadHome();
   sb.auth.onAuthStateChange(async(_,session)=>{
-    if (session?.user) { user=session.user; await loadUserData(); updateAuthUI(); }
-    else { user=null; bmSet.clear(); readChaptersSet.clear(); updateAuthUI(); }
+    if(session?.user){user=session.user;await loadUserData();updateAuthUI();}
+    else{user=null;bmSet.clear();readSet.clear();updateAuthUI();}
   });
 }
 
-initApp();
+init();
 </script>
 </body>
 </html>
